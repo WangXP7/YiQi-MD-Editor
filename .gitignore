@@ -1,0 +1,10 @@
+node_modules
+dist
+dist-electron
+release
+out
+dist-pkg
+dist-pkg*
+*.exe
+*.log
+.DS_Store

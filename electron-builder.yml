@@ -1,0 +1,23 @@
+appId: com.mdeditor.app
+productName: MD-Editor-HY3-YiQi
+directories:
+  output: release
+  buildResources: resources
+files:
+  - dist/**/*
+  - dist-electron/**/*
+extraResources:
+  - from: resources/icon.ico
+    to: icon.ico
+win:
+  target:
+    - portable
+    - nsis
+  sign: ./scripts/do-not-sign.js
+  icon: resources/icon.ico
+portable:
+  artifactName: MD-Editor-HY3-YiQi-Portable-${version}.${ext}
+nsis:
+  artifactName: MD-Editor-HY3-YiQi-Setup-${version}.${ext}
+  shortcutName: MD-Editor-HY3-YiQi
+  createDesktopShortcut: always
