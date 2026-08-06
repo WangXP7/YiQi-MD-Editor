@@ -1,55 +1,85 @@
 {
-  "name": "md-editor-hy3-yiqi",
+  "name": "yiqi-md-editor-v4-flash",
   "version": "1.0.0",
-  "private": true,
-  "description": "Windows 独立运行的 Markdown 查看/编辑桌面程序",
-  "author": "Qi Delivery Team",
-  "main": "dist-electron/main.js",
+  "description": "YiQi@MD-Editor-V4-Flash - 美观、全格式支持的 Windows Markdown 查看/编辑桌面应用",
+  "main": "src/main.js",
+  "author": "MarkNote Team",
+  "license": "MIT",
+  "productName": "YiQi@MD-Editor-V4-Flash",
   "scripts": {
-    "dev": "vite",
-    "build": "vite build",
-    "dist": "vite build && electron-builder --win",
-    "pack": "vite build && electron-builder --win --dir",
-    "test": "vitest run",
-    "typecheck": "tsc --noEmit"
+    "build:renderer": "node scripts/build-renderer.mjs",
+    "start": "npm run build:renderer && electron .",
+    "dist:win": "npm run build:renderer && electron-builder --win",
+    "pack:win": "npm run build:renderer && electron-builder --win --dir",
+    "dist:portable": "npm run build:renderer && electron-builder --win portable",
+    "dist:nsis": "npm run build:renderer && electron-builder --win nsis"
   },
   "dependencies": {
-    "@codemirror/autocomplete": "^6.18.0",
-    "@codemirror/lang-markdown": "^6.2.0",
-    "@codemirror/language-data": "^6.5.0",
-    "@codemirror/theme-one-dark": "^6.1.0",
-    "@codemirror/view": "^6.26.0",
-    "@uiw/react-codemirror": "^4.23.0",
-    "github-slugger": "^2.0.0",
-    "highlight.js": "^11.9.0",
-    "js-yaml": "^4.1.0",
-    "katex": "^0.16.0",
-    "mermaid": "^11.0.0",
-    "react": "^18.3.1",
-    "react-dom": "^18.3.1",
-    "react-markdown": "^9.0.1",
-    "rehype-highlight": "^7.0.0",
-    "rehype-katex": "^7.0.0",
-    "rehype-raw": "^7.0.0",
-    "rehype-slug": "^6.0.0",
-    "remark-frontmatter": "^5.0.0",
-    "remark-gfm": "^4.0.0",
-    "remark-math": "^6.0.0",
-    "remark-footnotes": "^4.0.0"
+    "iconv-lite": "^0.6.3"
   },
   "devDependencies": {
-    "@testing-library/react": "^16.0.0",
-    "@types/node": "^20.0.0",
-    "@types/react": "^18.3.0",
-    "@types/react-dom": "^18.3.0",
-    "@vitejs/plugin-react": "^4.3.0",
-    "electron": "^31.0.0",
+    "@codemirror/autocomplete": "^6.18.0",
+    "@codemirror/commands": "^6.6.0",
+    "@codemirror/lang-markdown": "^6.3.0",
+    "@codemirror/language": "^6.10.2",
+    "@codemirror/language-data": "^6.5.1",
+    "@codemirror/search": "^6.5.6",
+    "@codemirror/state": "^6.4.1",
+    "@codemirror/view": "^6.28.4",
+    "@lezer/highlight": "^1.2.1",
+    "electron": "^31.7.7",
     "electron-builder": "^24.13.3",
-    "jsdom": "^24.0.0",
-    "typescript": "^5.5.0",
-    "vite": "^5.4.0",
-    "vite-plugin-electron": "^0.28.0",
-    "vite-plugin-electron-renderer": "^0.14.0",
-    "vitest": "^2.0.0"
+    "esbuild": "^0.24.2",
+    "highlight.js": "^11.10.0",
+    "katex": "^0.16.11",
+    "markdown-it": "^14.1.0",
+    "markdown-it-abbr": "^2.0.0",
+    "markdown-it-container": "^4.0.0",
+    "markdown-it-emoji": "^3.0.0",
+    "markdown-it-footnote": "^4.0.0",
+    "markdown-it-sub": "^2.0.0",
+    "markdown-it-sup": "^2.0.0",
+    "markdown-it-task-lists": "^2.1.1",
+    "markdown-it-texmath": "^1.0.0",
+    "mermaid": "^10.9.1"
+  },
+  "build": {
+    "appId": "com.marknote.editor",
+    "productName": "YiQi@MD-Editor-V4-Flash",
+    "asar": true,
+    "directories": {
+      "output": "build"
+    },
+    "files": [
+      "src/**/*",
+      "package.json"
+    ],
+    "win": {
+      "target": [
+        {
+          "target": "portable",
+          "arch": [
+            "x64"
+          ]
+        },
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        }
+      ],
+      "artifactName": "${productName}-${version}-${arch}.${ext}"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "YiQi@MD-Editor-V4-Flash"
+    },
+    "portable": {
+      "artifactName": "${productName}-${version}-portable-${arch}.${ext}"
+    }
   }
 }

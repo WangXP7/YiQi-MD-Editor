@@ -1,10 +1,19 @@
-node_modules
-dist
-dist-electron
-release
-out
-dist-pkg
-dist-pkg*
-*.exe
+# 依赖
+node_modules/
+
+# 构建产物
+build/
+dist/
+src/renderer/vendor/
+
+# 日志
 *.log
+npm-debug.log*
+
+# 系统文件
 .DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
