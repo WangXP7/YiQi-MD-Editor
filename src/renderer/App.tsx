@@ -203,6 +203,9 @@ export default function App() {
         case 'copyHtml':
           copyHtml()
           break
+        case 'clearRecents':
+          clear()
+          break
         case 'zoomIn':
           setZoom((z) => Math.min(2, +(z + 0.1).toFixed(2)))
           break
@@ -229,7 +232,8 @@ export default function App() {
       toggleTheme,
       toggleFocusMode,
       toggleTypewriterMode,
-      copyHtml
+      copyHtml,
+      clear
     ]
   )
 

@@ -1,4 +1,3 @@
-// @vitest-environment jsdom
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 
 /**
@@ -9,12 +8,20 @@ import { describe, it, expect, vi, beforeEach } from 'vitest'
  *  构造 new ClipboardItem({ 'text/html': Blob, 'text/plain': Blob }) 写入剪贴板。
  * 锁定「必须同时写入 text/html 与 text/plain 两种表示」的契约形态，
  * 防止回退逻辑被误删或 Blob 类型被改坏。
+ *
+ * 注：本工作区 jsdom 环境因嵌套依赖 http-proxy-agent 缺 dist/index.js 无法加载，
+ * 故在 node 环境下用 vi.stubGlobal 提供最小 document/navigator/ClipboardItem 桩。
  */
 
 describe('copyHtml 契约（ClipboardItem 构造形态）', () => {
   beforeEach(() => {
-    document.body.innerHTML =
-      '<div class="markdown-body"><h1>标题</h1><p>正文内容</p></div>'
+    const fakeEl = {
+      innerHTML: '<h1>标题</h1><p>正文内容</p>',
+      textContent: '标题正文内容'
+    }
+    vi.stubGlobal('document', {
+      querySelector: (sel: string) => (sel === '.markdown-body' ? fakeEl : null)
+    })
   })
 
   it('构造 ClipboardItem 含 text/html 与 text/plain 两个 Blob，且内容正确', async () => {
@@ -44,7 +51,7 @@ describe('copyHtml 契约（ClipboardItem 构造形态）', () => {
 
     // 调用形态：恰好调用一次，传入一个 ClipboardItem
     expect(write).toHaveBeenCalledTimes(1)
-    const arg = write.mock.calls[0][0] as ClipboardItem[]
+    const arg = write.mock.calls[0][0] as unknown as ClipboardItem[]
     expect(arg).toHaveLength(1)
 
     expect(FakeClipboardItem).toHaveBeenCalledWith(
