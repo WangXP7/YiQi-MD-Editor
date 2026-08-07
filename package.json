@@ -50,8 +50,10 @@
     "directories": {
       "output": "build"
     },
+    "icon": "resources/icon.ico",
     "files": [
       "src/**/*",
+      "resources/**/*",
       "package.json"
     ],
     "win": {
