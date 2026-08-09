@@ -1,84 +1,63 @@
-<div align="center">
+# YiQi@MD-Editor-GPT5.6SolxHigh-v1.1.0
 
-![浅色版图标](resources/icon-256.png)
+YiQi@MD-Editor-GPT5.6SolxHigh-v1.1.0 是一款面向 Windows 的离线 Markdown 查看与编辑器，提供现代化双栏界面、实时预览和完整的本地文件工作流。
 
-# YiQi@MD-Editor-V4-Flash
+## 主要能力
 
-**水墨国风 · 全格式 Markdown 查看 / 编辑桌面应用**
+- CommonMark 与 GitHub Flavored Markdown（GFM）
+- 标题、列表、引用、表格、任务清单、脚注、定义列表
+- 高亮、插入、上下标、Emoji、常用内嵌 HTML
+- KaTeX / LaTeX 数学公式
+- Mermaid 流程图、时序图、甘特图、类图等
+- 常见编程语言的代码高亮
+- 编辑、分栏、预览三种视图和可拖动分隔线
+- 文档大纲、最近文件、字数/字符/阅读时间统计
+- 拖放打开、另存为、HTML/PDF 导出
+- 深色/浅色主题、预览缩放、快捷格式工具栏
+- 段落、代码、引用、列表和表格等内容块的悬浮复制按钮
+- `.md`、`.markdown`、`.mdown`、`.mkd` 文件关联
 
-![深色版图标](resources/icon-dark-256.png)
+渲染阶段使用 DOM 清理保护预览区域；远程链接由系统默认浏览器打开。应用本身不依赖云端服务。
 
-*「墨」字书法 · 墨韵山水 · 朱红印章 — 浅色 / 深色双主题水墨图标*
+## 开发
 
-</div>
+需要 Node.js 22 或更高版本，以及 pnpm。
 
----
-
-## ✨ 功能特性
-
-| 类别 | 能力 |
-|------|------|
-| **编辑体验** | CodeMirror 6：行号、括号匹配、代码折叠、自动补全、当前行高亮、Tab 缩进 |
-| **实时预览** | 双栏分屏 + 滚动联动，支持 仅编辑 / 仅预览 / 分屏 三种视图（Ctrl+1/2/3） |
-| **格式支持全** | GFM 表格/任务列表/删除线/自动链接、脚注、emoji、KaTeX 数学公式、highlight.js 代码高亮、Mermaid 图、`[[toc]]` 目录、上标/下标/缩略语 |
-| **文件操作** | 新建 / 打开 / 保存 / 另存为（Ctrl+N/O/S/Shift+S）、拖拽打开、最近打开文件、会话恢复 |
-| **编码兼容** | 自动检测 UTF-8 / UTF-8 BOM / GBK / GB18030 / UTF-16，GBK 文件不乱码 |
-| **导出** | 导出 HTML（样式内嵌独立可开）、导出 PDF（A4 打印） |
-| **界面** | 亮/暗主题一键切换（Ctrl+T）、简体中文、状态栏统计（行/字/字符/光标）、窗口位置记忆 |
-| **安全** | contextIsolation + nodeIntegration:false，预览区 sandbox iframe 隔离 |
-
-## 🚀 快速开始
-
-```bash
-# 开发运行
-npm install
-npm run build:renderer   # esbuild 打包渲染层（生成 vendor/bundle.js + KaTeX 字体内嵌）
-npm start
-
-# 打包 Windows 可执行文件（portable 绿色版 + nsis 安装包，产物在 build/）
-npm run dist:win
+```powershell
+pnpm install
+pnpm dev
 ```
 
-### 直接使用（无需安装）
+## Windows 打包
 
-下载 `build/YiQi@MD-Editor-V4-Flash-1.0.0-portable-x64.exe`，双击即用。
-
-## 🧱 技术栈
-
-- **Electron 31**（主进程 / preload / renderer 三层）
-- **CodeMirror 6** — 编辑器核心（`@codemirror/*` 全家桶）
-- **markdown-it 14** + 扩展全家桶 — 渲染管线
-- **KaTeX** — 数学公式（字体内嵌 data URI，离线可用）
-- **highlight.js** — 代码高亮
-- **Mermaid 10** — 流程图/时序图/甘特图
-- **iconv-lite** — 多编码读写
-- **esbuild** — 渲染层打包
-- **electron-builder** — Windows 打包
-
-## 📁 项目结构
-
-```
-md-editor/
-├── package.json            # 依赖与 electron-builder 配置
-├── scripts/
-│   └── build-renderer.mjs  # esbuild 渲染层打包 + KaTeX 字体内嵌
-├── resources/              # 应用图标（水墨国风，浅/深双主题）
-│   ├── icon.ico            # 主图标（16-256 多尺寸，已内嵌 exe）
-│   ├── icon-dark.ico       # 深色主题变体
-│   └── make-icon.py        # 图标生成/去水印脚本
-└── src/
-    ├── main.js             # 主进程：窗口/菜单/对话框/编码检测/导出
-    ├── preload.js          # contextBridge 安全 IPC API
-    └── renderer/           # 渲染层：编辑器/预览/文件/查找/样式
+```powershell
+pnpm build
 ```
 
-## 🧪 测试
+打包产物位于 `release`：
 
-```bash
-node qa-verify.mjs          # 渲染管线 + 编码 + IPC + 产物 77 项验证
-node qa-regression.mjs      # 44 项回归检查
-```
+- `YiQi@MD-Editor-GPT5.6SolxHigh-v1.1.0-Setup-x64.exe`：安装版
+- `YiQi@MD-Editor-GPT5.6SolxHigh-v1.1.0-Portable-x64.exe`：免安装便携版
 
-## 📄 许可证
+应用未附带商业代码签名证书，因此在部分 Windows 设备首次运行时，SmartScreen 可能显示未知发布者提示。
+
+## 快捷键
+
+| 快捷键 | 操作 |
+| --- | --- |
+| `Ctrl + N` | 新建文档 |
+| `Ctrl + O` | 打开文档 |
+| `Ctrl + S` | 保存 |
+| `Ctrl + Shift + S` | 另存为 |
+| `Ctrl + F` | 查找 / 替换 |
+| `Ctrl + B` | 粗体 |
+| `Ctrl + I` | 斜体 |
+| `Ctrl + Shift + P` | 预览模式 |
+
+## 技术栈
+
+Electron、Vite、CodeMirror 6、markdown-it、DOMPurify、KaTeX、Mermaid 与 highlight.js。
+
+## License
 
 MIT

@@ -1,0 +1,11 @@
+packages:
+  - .
+
+blockExoticSubdeps: false
+minimumReleaseAge: 0
+confirmModulesPurge: false
+
+allowBuilds:
+  electron: true
+  electron-winstaller: true
+  esbuild: true

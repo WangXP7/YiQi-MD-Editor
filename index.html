@@ -1,0 +1,182 @@
+<!doctype html>
+<html lang="zh-CN" data-theme="dark">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: file: https: http:; font-src 'self' data:; connect-src 'self' http://127.0.0.1:* ws://127.0.0.1:*; worker-src 'self' blob:;" />
+    <title>YiQi@MD-Editor-GPT5.6SolxHigh-v1.1.0</title>
+    <link rel="icon" href="/app-icon.svg" type="image/svg+xml" />
+  </head>
+  <body>
+    <div class="aurora aurora-one"></div>
+    <div class="aurora aurora-two"></div>
+
+    <div id="app">
+      <header class="titlebar">
+        <div class="titlebar-brand">
+          <div class="brand-mark mini" aria-hidden="true"><span>Y</span></div>
+          <span class="titlebar-name">YiQi@MD-Editor-GPT5.6SolxHigh-v1.1.0</span>
+          <span class="titlebar-divider"></span>
+          <span id="window-title" class="window-title">未命名.md</span>
+        </div>
+        <div class="titlebar-actions no-drag">
+          <button class="window-button" id="window-minimize" aria-label="最小化"><i data-lucide="minus"></i></button>
+          <button class="window-button" id="window-maximize" aria-label="最大化"><i data-lucide="square"></i></button>
+          <button class="window-button close" id="window-close" aria-label="关闭"><i data-lucide="x"></i></button>
+        </div>
+      </header>
+
+      <div class="app-shell">
+        <aside class="sidebar" id="sidebar">
+          <div class="brand-block">
+            <div class="brand-mark"><span>Y</span><div class="brand-orbit"></div></div>
+            <div>
+              <h1>YiQi@MD</h1>
+              <p>GPT5.6 SOL XHIGH · v1.1.0</p>
+            </div>
+          </div>
+
+          <div class="quick-actions">
+            <button class="primary-action" id="new-file"><i data-lucide="file-plus-2"></i><span>新建文档</span><kbd>Ctrl N</kbd></button>
+            <button class="secondary-action" id="open-file"><i data-lucide="folder-open"></i><span>打开文件</span><kbd>Ctrl O</kbd></button>
+          </div>
+
+          <div class="side-tabs" role="tablist">
+            <button class="side-tab active" data-side-tab="outline" role="tab">大纲</button>
+            <button class="side-tab" data-side-tab="recent" role="tab">最近</button>
+          </div>
+
+          <div class="side-panel active" id="outline-panel">
+            <div class="panel-label"><span>文档结构</span><span id="heading-count">0 项</span></div>
+            <nav id="outline-list" class="outline-list">
+              <div class="side-empty"><i data-lucide="list-tree"></i><p>输入标题后，这里将生成大纲</p></div>
+            </nav>
+          </div>
+
+          <div class="side-panel" id="recent-panel">
+            <div class="panel-label"><span>最近打开</span><button id="clear-recent" class="text-button">清空</button></div>
+            <div id="recent-list" class="recent-list"></div>
+          </div>
+
+          <div class="sidebar-footer">
+            <div class="compat-pill"><span class="status-dot"></span> CommonMark · GFM</div>
+            <button class="icon-text-button" id="about-button"><i data-lucide="circle-help"></i><span>支持的语法</span></button>
+          </div>
+        </aside>
+
+        <main class="main-area">
+          <div class="document-bar">
+            <div class="document-tab active">
+              <i data-lucide="file-text"></i>
+              <span id="tab-name">未命名.md</span>
+              <span id="dirty-dot" class="dirty-dot" title="未保存"></span>
+            </div>
+            <div class="document-actions">
+              <button class="ghost-button" id="toggle-sidebar" title="切换侧边栏"><i data-lucide="panel-left"></i></button>
+              <div class="view-switch" aria-label="视图模式">
+                <button data-view="editor" title="仅编辑"><i data-lucide="code-2"></i></button>
+                <button data-view="split" class="active" title="分栏视图"><i data-lucide="columns-2"></i></button>
+                <button data-view="preview" title="仅预览"><i data-lucide="eye"></i></button>
+              </div>
+              <button class="ghost-button" id="theme-toggle" title="切换主题"><i data-lucide="moon-star"></i></button>
+              <div class="export-wrap">
+                <button class="export-button" id="export-button"><i data-lucide="share"></i><span>导出</span><i data-lucide="chevron-down" class="chevron"></i></button>
+                <div class="export-menu" id="export-menu">
+                  <button data-export="html"><i data-lucide="file-code-2"></i><span><b>HTML 网页</b><small>包含完整排版样式</small></span></button>
+                  <button data-export="pdf"><i data-lucide="file-type-2"></i><span><b>PDF 文档</b><small>适合打印与分享</small></span></button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="format-toolbar" id="format-toolbar">
+            <div class="tool-group">
+              <button data-format="heading" title="标题"><i data-lucide="heading-2"></i></button>
+              <button data-format="bold" title="粗体 (Ctrl+B)"><i data-lucide="bold"></i></button>
+              <button data-format="italic" title="斜体 (Ctrl+I)"><i data-lucide="italic"></i></button>
+              <button data-format="strike" title="删除线"><i data-lucide="strikethrough"></i></button>
+              <button data-format="mark" title="高亮"><i data-lucide="highlighter"></i></button>
+            </div>
+            <span class="tool-divider"></span>
+            <div class="tool-group">
+              <button data-format="quote" title="引用"><i data-lucide="quote"></i></button>
+              <button data-format="bullet" title="无序列表"><i data-lucide="list"></i></button>
+              <button data-format="number" title="有序列表"><i data-lucide="list-ordered"></i></button>
+              <button data-format="task" title="任务列表"><i data-lucide="list-checks"></i></button>
+            </div>
+            <span class="tool-divider"></span>
+            <div class="tool-group">
+              <button data-format="link" title="链接"><i data-lucide="link"></i></button>
+              <button data-format="image" title="图片"><i data-lucide="image"></i></button>
+              <button data-format="code" title="行内代码"><i data-lucide="code"></i></button>
+              <button data-format="codeblock" title="代码块"><i data-lucide="square-code"></i></button>
+              <button data-format="table" title="表格"><i data-lucide="table-2"></i></button>
+              <button data-format="rule" title="分隔线"><i data-lucide="minus"></i></button>
+            </div>
+            <div class="toolbar-spacer"></div>
+            <button class="toolbar-search" id="search-button" title="查找 (Ctrl+F)"><i data-lucide="search"></i><span>查找</span><kbd>Ctrl F</kbd></button>
+          </div>
+
+          <section class="workbench split-view" id="workbench">
+            <div class="pane editor-pane" id="editor-pane">
+              <div class="pane-header">
+                <div><span class="pane-accent purple"></span><span>MARKDOWN</span></div>
+                <div class="pane-meta" id="cursor-position">第 1 行，第 1 列</div>
+              </div>
+              <div id="editor" class="editor-host" aria-label="Markdown 编辑器"></div>
+            </div>
+
+            <div class="pane-resizer" id="pane-resizer" title="拖动调整分栏"></div>
+
+            <div class="pane preview-pane" id="preview-pane">
+              <div class="pane-header">
+                <div><span class="pane-accent cyan"></span><span>PREVIEW</span></div>
+                <div class="pane-meta preview-state"><span class="live-dot"></span>实时渲染</div>
+              </div>
+              <div class="preview-scroll" id="preview-scroll">
+                <article id="preview" class="markdown-body"></article>
+              </div>
+            </div>
+          </section>
+
+          <footer class="statusbar">
+            <div class="status-left">
+              <span class="status-ready"><i data-lucide="sparkles"></i><span id="save-status">已就绪</span></span>
+              <button id="encoding-button">UTF-8</button>
+              <button>LF</button>
+            </div>
+            <div class="status-right">
+              <span id="word-count">0 字</span>
+              <span id="char-count">0 字符</span>
+              <span id="read-time">阅读约 1 分钟</span>
+              <span class="zoom-control"><button id="zoom-out">−</button><span id="zoom-value">100%</span><button id="zoom-in">＋</button></span>
+            </div>
+          </footer>
+        </main>
+      </div>
+    </div>
+
+    <div class="drop-overlay" id="drop-overlay">
+      <div class="drop-card"><div class="drop-icon"><i data-lucide="file-down"></i></div><h2>松开以打开文档</h2><p>支持 .md · .markdown · .mdown · .mkd · .txt</p></div>
+    </div>
+
+    <div class="modal-backdrop" id="about-modal" aria-hidden="true">
+      <div class="modal-card syntax-modal" role="dialog" aria-modal="true">
+        <button class="modal-close" data-close-modal><i data-lucide="x"></i></button>
+        <div class="modal-brand"><div class="brand-mark"><span>Y</span><div class="brand-orbit"></div></div><div><h2>YiQi@MD-Editor-GPT5.6SolxHigh-v1.1.0</h2><p>离线优先的全能 Markdown 工作台</p></div></div>
+        <div class="syntax-grid">
+          <div><i data-lucide="text"></i><b>标准排版</b><span>CommonMark、GFM、标题、引用、列表、链接、图片</span></div>
+          <div><i data-lucide="table-properties"></i><b>增强格式</b><span>表格、任务清单、脚注、定义列表、高亮、上下标</span></div>
+          <div><i data-lucide="sigma"></i><b>数学公式</b><span>KaTeX 行内与块级 LaTeX 公式</span></div>
+          <div><i data-lucide="git-branch"></i><b>Mermaid 图表</b><span>流程图、时序图、甘特图、类图等</span></div>
+          <div><i data-lucide="braces"></i><b>代码高亮</b><span>自动识别常见编程语言并高亮</span></div>
+          <div><i data-lucide="shield-check"></i><b>安全 HTML</b><span>允许常用 HTML，同时过滤危险脚本</span></div>
+        </div>
+        <div class="modal-footer"><span id="version-label">YiQi@MD-Editor-GPT5.6SolxHigh-v1.1.0</span><button class="primary-small" data-close-modal>开始创作</button></div>
+      </div>
+    </div>
+
+    <div class="toast-stack" id="toast-stack" aria-live="polite"></div>
+    <script type="module" src="/src/app.js"></script>
+  </body>
+</html>
