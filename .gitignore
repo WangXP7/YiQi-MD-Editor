@@ -1,0 +1,18 @@
+node_modules/
+dist/
+release/
+<<<<<<< HEAD
+.pnpm-store/
+*.log
+*.tmp
+.DS_Store
+Thumbs.db
+=======
+*.log
+.DS_Store
+Thumbs.db
+.env
+.env.local
+.vscode/
+.idea/
+>>>>>>> f1a92ae (feat: YiQi@MD-Editor-Trae-SeedCode v1.0.0)

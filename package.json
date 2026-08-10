@@ -1,0 +1,78 @@
+{
+  "name": "yiqi-md-editor",
+  "version": "1.0.0",
+  "description": "YiQi@MD-Editor-Trae-SeedCode - A beautiful Markdown editor for Windows",
+  "main": "electron/main.js",
+  "author": "YiQi",
+  "license": "MIT",
+  "scripts": {
+    "dev": "concurrently \"vite\" \"wait-on http://localhost:5173 && cross-env NODE_ENV=development electron .\"",
+    "build:renderer": "vite build",
+    "build": "npm run build:renderer && electron-builder",
+    "start": "electron ."
+  },
+  "build": {
+    "appId": "com.yiqi.md-editor",
+    "productName": "YiQi@MD-Editor-Trae-SeedCode",
+    "directories": {
+      "output": "release"
+    },
+    "files": [
+      "electron/**/*",
+      "dist/**/*",
+      "package.json"
+    ],
+    "win": {
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        },
+        {
+          "target": "portable",
+          "arch": [
+            "x64"
+          ]
+        }
+      ],
+      "icon": "public/icon.ico"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "shortcutName": "YiQi@MD-Editor-Trae-SeedCode",
+      "artifactName": "YiQi@MD-Editor-Trae-SeedCode-Setup-${version}.${ext}"
+    },
+    "portable": {
+      "artifactName": "YiQi@MD-Editor-Trae-SeedCode-Portable-${version}.${ext}"
+    }
+  },
+  "devDependencies": {
+    "@vitejs/plugin-vue": "^5.0.4",
+    "concurrently": "^8.2.2",
+    "cross-env": "^7.0.3",
+    "electron": "^30.0.0",
+    "electron-builder": "^24.13.3",
+    "png-to-ico": "^3.0.2",
+    "sharp": "^0.35.3",
+    "vite": "^5.2.0",
+    "wait-on": "^7.2.0"
+  },
+  "dependencies": {
+    "dompurify": "^3.1.0",
+    "highlight.js": "^11.9.0",
+    "katex": "^0.16.9",
+    "markdown-it": "^14.1.0",
+    "markdown-it-anchor": "^8.6.7",
+    "markdown-it-emoji": "^2.0.2",
+    "markdown-it-kbd": "^2.2.2",
+    "markdown-it-task-lists": "^2.1.1",
+    "markdown-it-toc-done-right": "^4.2.0",
+    "marked": "^12.0.0",
+    "mermaid": "^10.9.0",
+    "vue": "^3.4.0"
+  }
+}
