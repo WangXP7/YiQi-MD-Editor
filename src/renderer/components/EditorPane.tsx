@@ -46,13 +46,16 @@ export default function EditorPane({ onViewChange }: Props) {
     }
   }
 
+  // 暗色系主题（dark / graphite / midnight）使用 oneDark，其余使用浅色主题，
+  // 保证编辑器配色与当前主题一致（原先仅 dark 走 oneDark，新暗色主题会显示白底）。
+  const isDarkTheme = theme === 'dark' || theme === 'graphite' || theme === 'midnight'
   return (
     <div className={'editor-pane' + (focusMode ? ' focus-mode' : '')} onPaste={handlePaste}>
       <CodeMirror
         ref={cmRef}
         value={content}
         height="100%"
-        theme={theme === 'dark' ? oneDark : 'light'}
+        theme={isDarkTheme ? oneDark : 'light'}
         extensions={[...extensions, ...(typewriterMode ? [typewriterListener] : [])]}
         onChange={(v) => setContent(v)}
         onCreateEditor={(view) => onViewChange?.(view)}

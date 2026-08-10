@@ -12,6 +12,8 @@ import { useTheme, useAutoSave, useRecentFiles, useWordCount, useToc } from './h
 import { parseFrontmatter } from './lib/frontmatter'
 import { buildExportDocument } from './lib/exporter'
 import { getDir } from './lib/imagePaste'
+import { copyText } from './lib/clipboard'
+import CopyableBlock from './components/CopyableBlock'
 import { APP_NAME } from '../shared/constants'
 import type { ThemeName } from '../shared/types'
 
@@ -35,6 +37,7 @@ export default function App() {
   const [aboutOpen, setAboutOpen] = useState(false)
   const [focusMode, setFocusMode] = useState(false)
   const [typewriterMode, setTypewriterMode] = useState(false)
+  const [errorMsg, setErrorMsg] = useState<string | null>(null)
   const editorViewRef = useRef<EditorView | null>(null)
 
   const { theme, setTheme, toggleTheme } = useTheme()
@@ -46,6 +49,14 @@ export default function App() {
 
   const toggleFocusMode = useCallback(() => setFocusMode((v) => !v), [])
   const toggleTypewriterMode = useCallback(() => setTypewriterMode((v) => !v), [])
+
+  // 轻量错误提示（可复制长错误文案），4s 后自动消失
+  const showError = useCallback((msg: string) => {
+    setErrorMsg(msg)
+    window.setTimeout(() => {
+      setErrorMsg((cur) => (cur === msg ? null : cur))
+    }, 4000)
+  }, [])
 
   const updateContent = useCallback((v: string) => {
     setContent(v)
@@ -76,7 +87,7 @@ export default function App() {
     async (p: string) => {
       const r = await window.api.openByPath(p)
       if ('error' in r) {
-        alert('文件不存在或已被移动：' + p)
+        showError('文件不存在或已被移动：' + p)
         return
       }
       setContent(r.content)
@@ -137,12 +148,8 @@ export default function App() {
         })
       ])
     } catch {
-      // 回退：仅复制纯文本
-      try {
-        await navigator.clipboard.writeText(text)
-      } catch {
-        /* ignore */
-      }
+      // 回退：仅复制纯文本（复用 copyText 统一逻辑）
+      await copyText(text)
     }
   }, [])
 
@@ -266,14 +273,16 @@ export default function App() {
       updateContent((content || '') + `\n![](${res.relativePath})\n`)
       return
     }
-    // Markdown 分支：原误用 file.name 写入 recents，改为绝对路径 file.path
+    // Markdown 分支：使用绝对路径 file.path 写入 recents（沙箱下可能不可用，需兜底）
     if (!/\.(md|markdown|txt)$/i.test(file.name)) return
     const text = await file.text()
     setContent(text)
     setFilePath(null)
     setFileName(file.name)
     setDirty(false)
-    add({ path: file.path, name: file.name, mtime: Date.now() })
+    if (file.path) {
+      add({ path: file.path, name: file.name, mtime: Date.now() })
+    }
     updateWinTitle(file.name)
   }
 
@@ -339,6 +348,22 @@ export default function App() {
         )}
         {aboutOpen && (
           <AboutDialog open={aboutOpen} onClose={() => setAboutOpen(false)} />
+        )}
+        {errorMsg && (
+          <div className="error-toast" role="alert">
+            <CopyableBlock text={errorMsg}>
+              <span>{errorMsg}</span>
+            </CopyableBlock>
+            <button
+              type="button"
+              className="error-toast-close"
+              onClick={() => setErrorMsg(null)}
+              aria-label="关闭提示"
+              title="关闭"
+            >
+              ×
+            </button>
+          </div>
         )}
       </div>
     </AppContext.Provider>

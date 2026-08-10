@@ -1,9 +1,14 @@
 import { describe, it, expect } from 'vitest'
-import { APP_NAME, APP_VERSION, THEME_LIST } from '../src/shared/constants'
+import { APP_NAME, APP_VERSION, APP_DISPLAY_NAME, THEME_LIST } from '../src/shared/constants'
 
 describe('共享常量 constants', () => {
-  it('APP_NAME 严格等于 MD-Editor-HY3-YiQi', () => {
-    expect(APP_NAME).toBe('MD-Editor-HY3-YiQi')
+  it('APP_NAME 严格等于 YiQi@MD-Editor-wb-Hy3', () => {
+    expect(APP_NAME).toBe('YiQi@MD-Editor-wb-Hy3')
+  })
+
+  it('APP_DISPLAY_NAME 等于 基础名 + 版本号（APP_NAME vAPP_VERSION）', () => {
+    expect(APP_DISPLAY_NAME).toBe(`${APP_NAME} v${APP_VERSION}`)
+    expect(APP_DISPLAY_NAME).toBe('YiQi@MD-Editor-wb-Hy3 v1.0.0')
   })
 
   it('APP_VERSION 为字符串且非空', () => {

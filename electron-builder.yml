@@ -1,5 +1,5 @@
 appId: com.mdeditor.app
-productName: MD-Editor-HY3-YiQi
+productName: YiQi@MD-Editor-wb-Hy3
 directories:
   output: release
   buildResources: resources
@@ -16,8 +16,8 @@ win:
   sign: ./scripts/do-not-sign.js
   icon: resources/icon.ico
 portable:
-  artifactName: MD-Editor-HY3-YiQi-Portable-${version}.${ext}
+  artifactName: YiQi@MD-Editor-wb-Hy3-Portable-${version}.${ext}
 nsis:
-  artifactName: MD-Editor-HY3-YiQi-Setup-${version}.${ext}
-  shortcutName: MD-Editor-HY3-YiQi
+  artifactName: YiQi@MD-Editor-wb-Hy3-Setup-${version}.${ext}
+  shortcutName: YiQi@MD-Editor-wb-Hy3
   createDesktopShortcut: always

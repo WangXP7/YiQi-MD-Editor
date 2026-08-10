@@ -489,3 +489,121 @@ body {
 .about-card .about-close:hover {
   filter: brightness(1.05);
 }
+
+/* ---------- 悬浮复制按钮 / 可复制块 ---------- */
+.copyable-block {
+  position: relative;
+}
+.copyable-block .copyable-block-content {
+  display: inline;
+}
+
+/* 代码块容器：相对定位，承载右上角复制按钮 */
+.code-block {
+  position: relative;
+}
+
+/* 圆形悬浮复制按钮（纯 CSS 变量，明/暗及 3 套新主题均可见） */
+.copy-btn {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  z-index: 5;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  border-radius: 50%;
+  border: 1px solid var(--border);
+  background: var(--panel-bg);
+  color: var(--fg);
+  font-size: 0.85rem;
+  line-height: 1;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.18);
+  transition: opacity 0.15s ease, background 0.15s ease, border-color 0.15s ease;
+}
+.copy-btn:hover {
+  background: var(--hover);
+  border-color: var(--accent);
+}
+/* 悬浮容器时显示；复制成功后常显 */
+.code-block:hover > .copy-btn,
+.copyable-block:hover > .copy-btn,
+.copy-btn.copied {
+  opacity: 1;
+}
+.copy-btn.copied {
+  background: var(--accent);
+  color: var(--accent-fg);
+  border-color: var(--accent);
+}
+
+/* 状态栏文件路径作为可复制块时沿用 .grow 的伸缩 / 省略样式 */
+.status-bar .copyable-block.grow {
+  margin-left: auto;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 40%;
+}
+.status-bar .copyable-block.grow .copyable-block-content {
+  display: inline;
+}
+/* 状态栏较矮，复制按钮居中并缩小，避免溢出 */
+.status-bar .copyable-block .copy-btn {
+  top: 50%;
+  transform: translateY(-50%);
+  right: 4px;
+  width: 22px;
+  height: 22px;
+  font-size: 0.75rem;
+}
+
+/* 错误提示 toast：可复制长错误文案 */
+.error-toast {
+  position: fixed;
+  left: 50%;
+  bottom: 48px;
+  transform: translateX(-50%);
+  z-index: 200;
+  max-width: 70vw;
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  background: var(--panel-bg);
+  color: var(--fg);
+  border: 1px solid #cf222e;
+  border-radius: 8px;
+  padding: 10px 12px;
+  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.25);
+}
+.error-toast .copyable-block {
+  position: relative;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.error-toast-close {
+  background: transparent;
+  border: none;
+  color: var(--muted);
+  font-size: 1rem;
+  line-height: 1;
+  cursor: pointer;
+  padding: 0 2px;
+}
+.error-toast-close:hover {
+  color: var(--fg);
+}
+
+/* 尊重 reduce-motion 偏好 */
+@media (prefers-reduced-motion: reduce) {
+  .copy-btn {
+    transition: none;
+  }
+}
+

@@ -1,0 +1,53 @@
+classDiagram
+    class Constants {
+        <<module src/shared/constants.ts>>
+        +APP_NAME: string
+        +APP_VERSION: string
+        +APP_DISPLAY_NAME: string
+        +THEME_LIST: ThemeItem[]
+    }
+
+    class Clipboard {
+        <<module src/renderer/lib/clipboard.ts>>
+        +copyText(text: string): Promise~void~
+    }
+
+    class CopyButton {
+        +text: string
+        +label: string = '复制'
+        -copied: boolean
+        +handleClick(): void
+    }
+
+    class CopyableBlock {
+        +text: string
+        +children: ReactNode
+        +className: string
+    }
+
+    class PreviewPane {
+        +components.pre override
+        -extractCodeText(children): string
+    }
+
+    class AboutDialog {
+        +open: boolean
+        +onClose: void
+    }
+
+    class StatusBar
+    class App {
+        +copyHtml(): Promise~void~
+        +showError(msg: string): void
+    }
+
+    CopyButton ..> Clipboard : uses copyText()
+    CopyableBlock *-- CopyButton : contains
+    PreviewPane ..> CopyButton : renders on code block
+    AboutDialog ..> CopyableBlock : wraps description
+    StatusBar ..> CopyableBlock : wraps filePath
+    App ..> Clipboard : copyHtml fallback
+    App ..> CopyableBlock : error toast uses
+    Constants <.. AboutDialog : APP_DISPLAY_NAME
+    Constants <.. App : APP_NAME (window title)
+    Constants <.. TopBar : APP_NAME (brand)

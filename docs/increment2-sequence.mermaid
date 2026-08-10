@@ -1,0 +1,19 @@
+sequenceDiagram
+    actor Dev as 工程师
+    participant C as constants.ts
+    participant HTML as index.html
+    participant EB as electron-builder.yml
+    participant PKG as package.json
+    participant T as tests/constants.test.ts
+    participant Rend as 渲染层(TopBar/AboutDialog/App)
+    participant Main as 主进程 main.ts
+
+    Dev->>C: APP_NAME='YiQi@MD-Editor-wb-Hy3'<br/>新增 APP_DISPLAY_NAME
+    C-->>Rend: TopBar 品牌字 / App 运行标题自动用 APP_NAME
+    C-->>Rend: AboutDialog 标题用 APP_DISPLAY_NAME(全名)
+    C-->>Main: createWindow title=APP_NAME
+    Dev->>HTML: <title>YiQi@MD-Editor-wb-Hy3</title>
+    Dev->>EB: productName/portable/nsis/shortcut=YiQi@MD-Editor-wb-Hy3
+    Dev->>PKG: name=yiqi-md-editor-wb-hy3(npm 安全变体)
+    Dev->>T: 断言改为新 APP_NAME
+    Note over Rend,Main: 其余引用 APP_NAME 处无需逐改（单一来源）

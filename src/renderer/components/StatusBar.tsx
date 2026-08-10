@@ -1,4 +1,5 @@
 import { useApp } from '../AppContext'
+import CopyableBlock from './CopyableBlock'
 
 export default function StatusBar() {
   const { wordCount, dirty, filePath, fileName, zoom, focusMode, typewriterMode } =
@@ -13,7 +14,13 @@ export default function StatusBar() {
       <span>缩放 {Math.round(zoom * 100)}%</span>
       {focusMode && <span className="mode-tag focus">专注</span>}
       {typewriterMode && <span className="mode-tag typewriter">打字</span>}
-      <span className="muted grow">{filePath || '未打开文件'}</span>
+      {filePath ? (
+        <CopyableBlock className="grow" text={filePath}>
+          <span className="muted grow">{filePath}</span>
+        </CopyableBlock>
+      ) : (
+        <span className="muted grow">未打开文件</span>
+      )}
     </footer>
   )
 }
