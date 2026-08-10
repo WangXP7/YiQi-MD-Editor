@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>YiQi@MD-Editor-千问-GLM5.2</title>
+  <link rel="stylesheet" href="../node_modules/codemirror/lib/codemirror.css">
+  <link rel="stylesheet" href="../node_modules/codemirror/theme/dracula.css">
+  <link rel="stylesheet" href="../node_modules/codemirror/theme/material-darker.css">
+  <link rel="stylesheet" href="../node_modules/codemirror/theme/ayu-dark.css">
+  <link rel="stylesheet" href="../node_modules/codemirror/addon/fold/foldgutter.css">
+  <link rel="stylesheet" href="../node_modules/codemirror/addon/search/dialog.css">
+  <link rel="stylesheet" href="../node_modules/codemirror/addon/display/fullscreen.css">
+  <link rel="stylesheet" href="../node_modules/katex/dist/katex.min.css">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body class="theme-dark split-view">
+  <!-- 顶部工具栏 -->
+  <header class="toolbar">
+    <div class="brand">
+      <span class="brand-logo">⚡</span>
+      <span class="brand-name">YiQi@MD-Editor</span>
+      <span class="brand-suffix">千问-GLM5.2</span>
+      <span class="brand-version">v1.0.0</span>
+    </div>
+    <div class="toolbar-actions">
+      <button id="btn-new" title="新建 Ctrl+N">📄 新建</button>
+      <button id="btn-open" title="打开 Ctrl+O">📂 打开</button>
+      <button id="btn-save" title="保存 Ctrl+S">💾 保存</button>
+      <span class="tb-sep"></span>
+      <button id="btn-view-edit" class="view-btn active" title="编辑模式">✏️ 编辑</button>
+      <button id="btn-view-split" class="view-btn" title="分屏模式 Ctrl+/">⇆ 分屏</button>
+      <button id="btn-view-preview" class="view-btn" title="预览模式">👁 预览</button>
+      <span class="tb-sep"></span>
+      <button id="btn-theme" title="切换主题">🎨 主题</button>
+      <button id="btn-outline" title="大纲 Ctrl+Shift+O">📑 大纲</button>
+      <span class="tb-sep"></span>
+      <button id="btn-export-html" title="导出 HTML Ctrl+E">🌐 HTML</button>
+      <button id="btn-export-pdf" title="导出 PDF Ctrl+Shift+P">📕 PDF</button>
+    </div>
+  </header>
+
+  <!-- 主区域 -->
+  <main class="main-area">
+    <!-- 编辑器面板 -->
+    <section class="editor-pane" id="editor-pane">
+      <div class="pane-header">编辑器</div>
+      <div class="pane-body">
+        <textarea id="editor"></textarea>
+      </div>
+      <div class="status-bar">
+        <span id="st-pos">行 1, 列 1</span>
+        <span id="st-count">0 字</span>
+        <span id="st-file">未命名.md</span>
+      </div>
+    </section>
+
+    <!-- 预览面板 -->
+    <section class="preview-pane" id="preview-pane">
+      <div class="pane-header">
+        预览
+        <button id="btn-sync" class="mini-btn" title="同步滚动">⇅</button>
+      </div>
+      <div class="pane-body preview-scroll" id="preview-scroll">
+        <article class="markdown-body" id="preview"></article>
+      </div>
+    </section>
+
+    <!-- 大纲侧栏 -->
+    <aside class="outline-pane" id="outline-pane" style="display:none;">
+      <div class="pane-header">大纲</div>
+      <div class="pane-body" id="outline-body"></div>
+    </aside>
+  </main>
+
+  <!-- 拖放遮罩 -->
+  <div class="drop-mask" id="drop-mask">
+    <div class="drop-hint">📂 释放以打开文件</div>
+  </div>
+
+  <!-- 速查弹窗 -->
+  <div class="modal" id="cheatsheet-modal" style="display:none;">
+    <div class="modal-bg" id="cs-bg"></div>
+    <div class="modal-box">
+      <div class="modal-head">
+        Markdown 语法速查
+        <button class="mini-btn" id="cs-close">✕</button>
+      </div>
+      <div class="modal-body" id="cs-body"></div>
+    </div>
+  </div>
+
+  <!-- 外部库 -->
+  <script src="../node_modules/markdown-it/dist/markdown-it.min.js"></script>
+  <script src="../node_modules/markdown-it-emoji/dist/markdown-it-emoji.min.js"></script>
+  <script src="../node_modules/markdown-it-task-lists/dist/markdown-it-task-lists.min.js"></script>
+  <script src="../node_modules/markdown-it-footnote/dist/markdown-it-footnote.min.js"></script>
+  <script src="../node_modules/markdown-it-sub/dist/markdown-it-sub.min.js"></script>
+  <script src="../node_modules/markdown-it-sup/dist/markdown-it-sup.min.js"></script>
+  <script src="../node_modules/markdown-it-deflist/dist/markdown-it-deflist.min.js"></script>
+  <script src="../node_modules/markdown-it-abbr/dist/markdown-it-abbr.min.js"></script>
+  <script src="../node_modules/markdown-it-container/dist/markdown-it-container.min.js"></script>
+  <script src="../node_modules/markdown-it-mark/dist/markdown-it-mark.min.js"></script>
+  <script src="../node_modules/markdown-it-ins/dist/markdown-it-ins.min.js"></script>
+  <script src="../node_modules/codemirror/lib/codemirror.js"></script>
+  <script src="../node_modules/codemirror/mode/markdown/markdown.js"></script>
+  <script src="../node_modules/codemirror/mode/gfm/gfm.js"></script>
+  <script src="../node_modules/codemirror/addon/edit/continuelist.js"></script>
+  <script src="../node_modules/codemirror/addon/edit/closebrackets.js"></script>
+  <script src="../node_modules/codemirror/addon/edit/matchbrackets.js"></script>
+  <script src="../node_modules/codemirror/addon/fold/foldcode.js"></script>
+  <script src="../node_modules/codemirror/addon/fold/foldgutter.js"></script>
+  <script src="../node_modules/codemirror/addon/fold/markdown-fold.js"></script>
+  <script src="../node_modules/codemirror/addon/search/search.js"></script>
+  <script src="../node_modules/codemirror/addon/search/searchcursor.js"></script>
+  <script src="../node_modules/codemirror/addon/search/jump-to-line.js"></script>
+  <script src="../node_modules/codemirror/addon/dialog/dialog.js"></script>
+  <script src="../node_modules/codemirror/addon/display/fullscreen.js"></script>
+  <script src="../node_modules/codemirror/addon/selection/active-line.js"></script>
+  <script src="../node_modules/katex/dist/katex.min.js"></script>
+  <script src="../node_modules/katex/dist/contrib/auto-render.min.js"></script>
+  <script src="../node_modules/mermaid/dist/mermaid.min.js"></script>
+  <script src="../node_modules/highlight.js/index.js"></script>
+  <link rel="stylesheet" href="../node_modules/highlight.js/styles/atom-one-dark.css">
+  <!-- 应用脚本 -->
+  <script src="renderer.js"></script>
+</body>
+</html>

@@ -24,6 +24,10 @@ make_icon.py
 test_render.py
 version_info.txt
 
+# 旧版本遗留
+dist/
+assets/
+
 # 日志与临时文件
 *.log
 *.tmp
@@ -50,6 +54,6 @@ desktop.ini
 *.swp
 *~
 
-# 但保留图标资源
+# 保留图标资源
 !build/icon.ico
 !build/icon.png
