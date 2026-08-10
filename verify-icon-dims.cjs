@@ -61,9 +61,9 @@ const icoSizes = parseIcoSizes(icoBuf);
 console.log(`[resources/icon.ico 期望尺寸] ${icoSizes.join(', ')}\n`);
 
 const baseline = analyze('基线 electron.exe', path.join(root, 'node_modules', 'electron', 'dist', 'electron.exe'));
-const unpacked = analyze('win-unpacked exe', path.join(root, 'build', 'win-unpacked', 'YiQi@MD-Editor-V4-Flash.exe'));
-analyze('portable exe', path.join(root, 'build', 'YiQi@MD-Editor-V4-Flash-1.0.0-portable-x64.exe'));
-analyze('nsis installer exe', path.join(root, 'build', 'YiQi@MD-Editor-V4-Flash-1.0.0-x64.exe'));
+const unpacked = analyze('win-unpacked exe', path.join(root, 'build', 'win-unpacked', 'YiQi@MD-Editor-wb-DSv4-Flash 1.0.0.exe'));
+analyze('portable exe', path.join(root, 'build', 'YiQi@MD-Editor-wb-DSv4-Flash 1.0.0-portable-x64.exe'));
+analyze('nsis installer exe', path.join(root, 'build', 'YiQi@MD-Editor-wb-DSv4-Flash 1.0.0-x64.exe'));
 
 console.log('\n=== 判定 ===');
 if (baseline && unpacked) {

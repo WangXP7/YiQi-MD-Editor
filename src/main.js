@@ -1,7 +1,7 @@
 'use strict';
 
 /**
- * YiQi@MD-Editor-V4-Flash - Electron 主进程
+ * YiQi@MD-Editor-wb-DSv4-Flash - Electron 主进程
  *
  * 职责：
  *  - 创建与管理主窗口（记住位置与大小）
@@ -22,9 +22,18 @@ const iconv = require('iconv-lite');
 // 常量与全局状态
 // ---------------------------------------------------------------------------
 
-const APP_NAME = 'YiQi@MD-Editor-V4-Flash';
+const APP_NAME = 'YiQi@MD-Editor-wb-DSv4-Flash';
 const CONFIG_FILE = 'config.json';
 const RECENT_MAX = 10;
+
+/**
+ * 应用显示名（产品名 + 版本号）。
+ * 版本号动态取自 package.json（app.getVersion()），避免硬编码。
+ * @returns {string}
+ */
+function appTitle() {
+  return APP_NAME + ' ' + app.getVersion();
+}
 
 let mainWindow = null;
 let windowAllowClose = false;
@@ -170,7 +179,7 @@ function createWindow() {
   appState.lastFilePath = config.lastFilePath;
 
   mainWindow = new BrowserWindow({
-    title: APP_NAME,
+    title: appTitle(),
     width: config.windowBounds.width || 1280,
     height: config.windowBounds.height || 800,
     minWidth: 900,
@@ -280,7 +289,7 @@ function openFileByPath(filePath) {
     const detected = detectAndDecode(buf);
     addRecentFile(filePath);
     if (mainWindow) {
-      mainWindow.setTitle(`${path.basename(filePath)} - ${APP_NAME}`);
+      mainWindow.setTitle(`${path.basename(filePath)} - ${appTitle()}`);
     }
     return {
       ok: true,
@@ -324,7 +333,7 @@ function saveFileByPath(filePath, content, encoding) {
     writeFileWithEncoding(filePath, content, encoding || 'utf8');
     addRecentFile(filePath);
     if (mainWindow) {
-      mainWindow.setTitle(`${path.basename(filePath)} - ${APP_NAME}`);
+      mainWindow.setTitle(`${path.basename(filePath)} - ${appTitle()}`);
     }
     return { ok: true, filePath, encoding: encoding || 'utf8' };
   } catch (err) {
@@ -641,7 +650,7 @@ function buildMenu() {
             dialog.showMessageBox(mainWindow, {
               type: 'info',
               title: '关于',
-              message: APP_NAME,
+              message: appTitle(),
               detail: '版本 ' + app.getVersion() + '\n一款美观、全格式支持的 Markdown 查看/编辑桌面应用。\n基于 Electron + CodeMirror 6 + markdown-it 构建。',
               buttons: ['确定']
             });

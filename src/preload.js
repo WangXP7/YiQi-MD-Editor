@@ -1,7 +1,7 @@
 'use strict';
 
 /**
- * YiQi@MD-Editor-V4-Flash - Preload 脚本
+ * YiQi@MD-Editor-wb-DSv4-Flash - Preload 脚本
  *
  * 通过 contextBridge 向渲染进程暴露安全的 IPC API。
  * 渲染进程只能访问 window.mdAPI 中声明的白名单方法。

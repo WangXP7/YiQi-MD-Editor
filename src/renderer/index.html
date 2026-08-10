@@ -4,16 +4,14 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https: http:; font-src 'self' data:; connect-src 'self' https: http:;">
-  <title>YiQi@MD-Editor-V4-Flash</title>
+  <title>YiQi@MD-Editor-wb-DSv4-Flash 1.0.0</title>
   <link rel="stylesheet" href="styles.css">
 </head>
 <body data-theme="light">
   <!-- 顶部工具栏 -->
   <header id="toolbar">
     <div class="toolbar-left">
-      <span id="app-logo" class="app-logo">YiQi@MD-Editor-V4-Flash</span>
-      <span id="file-title" class="file-title">未命名.md</span>
-      <span id="dirty-dot" class="dirty-dot hidden" title="有未保存的更改">●</span>
+      <span id="app-logo" class="app-logo">YiQi@MD-Editor-wb-DSv4-Flash</span>
       <span id="encoding-badge" class="encoding-badge">UTF-8</span>
     </div>
     <div class="toolbar-right">
@@ -32,6 +30,9 @@
       <button id="btn-find" class="tool-btn" title="查找 (Ctrl+F)">查找</button>
     </div>
   </header>
+
+  <!-- 多标签栏（VS Code 风格，动态渲染） -->
+  <nav id="tabbar" class="tabbar" aria-label="打开的文档"></nav>
 
   <!-- 主工作区 -->
   <main id="workspace">

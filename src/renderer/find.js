@@ -1,5 +1,5 @@
 /**
- * YiQi@MD-Editor-V4-Flash - 查找 / 替换面板
+ * YiQi@MD-Editor-wb-DSv4-Flash - 查找 / 替换面板
  *
  * 使用 @codemirror/search 的 SearchQuery 驱动 CodeMirror 高亮与跳转，
  * 面板 UI 为自绘 HTML，支持查找、上一个/下一个、替换、全部替换、

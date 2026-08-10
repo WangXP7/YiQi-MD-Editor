@@ -39,6 +39,7 @@ const checks = [
   'src/renderer/fileops.js',
   'src/renderer/find.js',
   'src/renderer/preview.js',
+  'src/renderer/tabbar.js',
   'src/renderer/styles.css',
   'src/renderer/utils.js',
   'src/renderer/vendor/bundle.js',

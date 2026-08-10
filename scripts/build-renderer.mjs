@@ -1,5 +1,5 @@
 /**
- * YiQi@MD-Editor-V4-Flash - 渲染层构建脚本
+ * YiQi@MD-Editor-wb-DSv4-Flash - 渲染层构建脚本
  *
  * 1) 生成 src/renderer/vendor/katex-css.js：将 KaTeX 字体内嵌为 data URI，
  *    使预览 iframe 与导出的 HTML 不依赖外部字体文件。

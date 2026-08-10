@@ -1,5 +1,5 @@
 /**
- * YiQi@MD-Editor-V4-Flash - 预览模块
+ * YiQi@MD-Editor-wb-DSv4-Flash - 预览模块
  *
  * 基于 markdown-it（GFM + 脚注 + emoji + 锚点 + TOC + 上/下标 + 缩略语）、
  * KaTeX（数学公式）、highlight.js（代码高亮）、Mermaid（图表）构建渲染管线。

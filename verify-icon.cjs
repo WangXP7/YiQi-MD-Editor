@@ -75,15 +75,15 @@ const iconIco = path.join(root, 'resources', 'icon.ico');
 const icoInfo = analyzeFile('resources/icon.ico (自定义图标源)', iconIco);
 
 // 3) 打包产物：win-unpacked exe
-const unpackedExe = path.join(root, 'build', 'win-unpacked', 'YiQi@MD-Editor-V4-Flash.exe');
+const unpackedExe = path.join(root, 'build', 'win-unpacked', 'YiQi@MD-Editor-wb-DSv4-Flash 1.0.0.exe');
 const unpacked = analyzeFile('win-unpacked exe (新产物)', unpackedExe);
 
 // 4) 打包产物：portable exe
-const portableExe = path.join(root, 'build', 'YiQi@MD-Editor-V4-Flash-1.0.0-portable-x64.exe');
+const portableExe = path.join(root, 'build', 'YiQi@MD-Editor-wb-DSv4-Flash 1.0.0-portable-x64.exe');
 const portable = analyzeFile('portable exe (新产物)', portableExe);
 
 // 5) 打包产物：nsis installer exe
-const nsisExe = path.join(root, 'build', 'YiQi@MD-Editor-V4-Flash-1.0.0-x64.exe');
+const nsisExe = path.join(root, 'build', 'YiQi@MD-Editor-wb-DSv4-Flash 1.0.0-x64.exe');
 const nsis = analyzeFile('nsis installer exe (新产物)', nsisExe);
 
 console.log('\n=== 结论 ===');

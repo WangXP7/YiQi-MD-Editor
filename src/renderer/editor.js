@@ -1,5 +1,5 @@
 /**
- * YiQi@MD-Editor-V4-Flash - 编辑器模块（CodeMirror 6）
+ * YiQi@MD-Editor-wb-DSv4-Flash - 编辑器模块（CodeMirror 6）
  *
  * 负责创建与配置 CodeMirror 6 实例：Markdown 语法高亮、行号、
  * 括号自动匹配、自动补全、代码折叠、查找/替换状态、滚动事件等。

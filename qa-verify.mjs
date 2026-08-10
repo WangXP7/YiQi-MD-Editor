@@ -1,11 +1,12 @@
 /**
- * qa-verify.mjs — YiQi@MD-Editor-V4-Flash QA 验证脚本
+ * qa-verify.mjs — YiQi@MD-Editor-wb-DSv4-Flash QA 验证脚本
  *
  * 验证范围：
  *  1. 渲染管线静态验证（从 src/renderer/preview.js 提取真实插件配置构造等价管线）
  *  2. 编码检测逻辑验证（从 src/main.js 提取 detectAndDecode 逻辑，配合 iconv-lite）
  *  3. IPC 通道一致性（静态解析 main.js / preload.js）
  *  4. 打包产物完整性（exe / app.asar / files 配置）
+ *  5. 改名完整性 + 多标签实现（TabManager / tabbar）
  *
  * 只读验证，不修改 src/ 下任何文件。
  */
@@ -503,8 +504,8 @@ check('IPC', '双向通道一致性总判定', ipcOk);
 section('4. 打包产物完整性');
 
 const buildDir = path.join(ROOT, 'build');
-const exePortable = path.join(buildDir, 'YiQi@MD-Editor-V4-Flash-1.0.0-portable-x64.exe');
-const exeNsis = path.join(buildDir, 'YiQi@MD-Editor-V4-Flash-1.0.0-x64.exe');
+const exePortable = path.join(buildDir, 'YiQi@MD-Editor-wb-DSv4-Flash 1.0.0-portable-x64.exe');
+const exeNsis = path.join(buildDir, 'YiQi@MD-Editor-wb-DSv4-Flash 1.0.0-x64.exe');
 const asarPath = path.join(buildDir, 'win-unpacked', 'resources', 'app.asar');
 
 function mb(bytes) {
@@ -548,6 +549,7 @@ if (fs.existsSync(asarPath)) {
     'src/renderer/fileops.js',
     'src/renderer/find.js',
     'src/renderer/preview.js',
+    'src/renderer/tabbar.js',
     'src/renderer/utils.js',
     'src/renderer/styles.css',
     'src/renderer/vendor/bundle.js',
@@ -614,7 +616,52 @@ if (Array.isArray(filesCfg)) {
   check('files 配置', 'main 入口 src/main.js 位于覆盖范围', filesCfg.some((f) => f.includes('src')));
 }
 check('files 配置', 'main 字段指向 src/main.js', pkg.main === 'src/main.js');
-check('files 配置', 'productName 正确', pkg.productName === 'YiQi@MD-Editor-V4-Flash');
+check('files 配置', 'npm name 正确', pkg.name === 'yiqi-md-editor-wb-dsv4-flash');
+check('files 配置', 'productName 正确（含版本号）', pkg.productName === 'YiQi@MD-Editor-wb-DSv4-Flash 1.0.0');
+check('files 配置', 'build.productName 与 productName 一致', pkg.build && pkg.build.productName === 'YiQi@MD-Editor-wb-DSv4-Flash 1.0.0');
+check('files 配置', 'build.nsis.shortcutName 正确', pkg.build && pkg.build.nsis && pkg.build.nsis.shortcutName === 'YiQi@MD-Editor-wb-DSv4-Flash 1.0.0');
+check('files 配置', 'build.icon 指向 resources/icon.ico', pkg.build && pkg.build.icon === 'resources/icon.ico');
+if (Array.isArray(filesCfg)) {
+  check('files 配置', '包含 resources/**/*（图标进包）', filesCfg.includes('resources/**/*'));
+}
+
+// ---------------------------------------------------------------------------
+// 5. 改名完整性 + 多标签实现（静态验证 src）
+// ---------------------------------------------------------------------------
+
+section('5. 改名完整性 + 多标签实现（静态验证 src）');
+
+const mainSrcChk = fs.readFileSync(path.join(ROOT, 'src', 'main.js'), 'utf8');
+const htmlSrcChk = fs.readFileSync(path.join(ROOT, 'src', 'renderer', 'index.html'), 'utf8');
+const appSrcChk = fs.readFileSync(path.join(ROOT, 'src', 'renderer', 'app.js'), 'utf8');
+const tabbarSrcChk = fs.readFileSync(path.join(ROOT, 'src', 'renderer', 'tabbar.js'), 'utf8');
+const stylesSrcChk = fs.readFileSync(path.join(ROOT, 'src', 'renderer', 'styles.css'), 'utf8');
+
+// 改名
+check('改名', "main.js APP_NAME = YiQi@MD-Editor-wb-DSv4-Flash", mainSrcChk.includes("const APP_NAME = 'YiQi@MD-Editor-wb-DSv4-Flash'"));
+check('改名', 'main.js 窗口标题使用 appTitle()（产品名 + 版本号）', mainSrcChk.includes('title: appTitle()') && mainSrcChk.includes('return APP_NAME + \' \' + app.getVersion()'));
+check('改名', 'index.html <title> 含产品名 + 版本号', htmlSrcChk.includes('<title>YiQi@MD-Editor-wb-DSv4-Flash 1.0.0</title>'));
+check('改名', 'index.html #app-logo 为短名（不含版本号）', htmlSrcChk.includes('>YiQi@MD-Editor-wb-DSv4-Flash</span>'));
+check('改名', 'app.js document.title 拼接 APP_TITLE（含版本号）', appSrcChk.includes("const APP_TITLE = 'YiQi@MD-Editor-wb-DSv4-Flash 1.0.0'") && appSrcChk.includes("' - ' + APP_TITLE"));
+check('改名', 'preload.js 头注释为新名', fs.readFileSync(path.join(ROOT, 'src', 'preload.js'), 'utf8').includes('YiQi@MD-Editor-wb-DSv4-Flash'));
+
+// 多标签
+check('多标签', 'index.html 含 #tabbar 容器', htmlSrcChk.includes('id="tabbar"'));
+check('多标签', 'app.js 引入 TabManager', appSrcChk.includes("import { TabManager } from './tabbar.js'"));
+check('多标签', 'app.js 新建 → tabManager.newTab', appSrcChk.includes("() => tabManager.newTab()"));
+check('多标签', 'app.js 打开 → tabManager.openDialog', appSrcChk.includes("() => tabManager.openDialog()"));
+check('多标签', 'app.js 保存 → tabManager.saveActive', appSrcChk.includes("() => tabManager.saveActive()"));
+check('多标签', 'app.js 拖拽 → tabManager.openInTab', appSrcChk.includes('tabManager.openInTab(result)'));
+check('多标签', 'app.js 会话恢复 → tabManager.openInTab', appSrcChk.includes('tabManager.openInTab(result)'));
+check('多标签', 'tabbar.js 导出 TabManager 类', tabbarSrcChk.includes('export class TabManager'));
+check('多标签', 'TabManager 实现 createTab 状态模型（path/name/content/encoding/dirty/scrollTop/cursorPos/lastSavedContent）',
+  ['path:', 'name:', 'content:', 'encoding:', 'dirty:', 'scrollTop:', 'cursorPos:', 'lastSavedContent:'].every((k) => tabbarSrcChk.includes(k)));
+check('多标签', 'TabManager 实现 switchTab / closeTab / newTab / openInTab',
+  ['switchTab(id)', 'closeTab(id)', 'newTab()', 'openInTab(result)'].every((m) => tabbarSrcChk.includes(m)));
+check('多标签', 'TabManager 关闭未保存标签弹「保存/不保存/取消」', tabbarSrcChk.includes("buttons: ['保存', '不保存', '取消']"));
+check('多标签', 'FileOps 实现 setActiveTab', fs.readFileSync(path.join(ROOT, 'src', 'renderer', 'fileops.js'), 'utf8').includes('setActiveTab(tab)'));
+check('多标签', 'styles.css 含 #tabbar / .tab / .tab-close 样式', stylesSrcChk.includes('#tabbar') && stylesSrcChk.includes('.tab-close'));
+check('多标签', 'bundle.js 已包含 TabManager 代码', fs.readFileSync(path.join(ROOT, 'src', 'renderer', 'vendor', 'bundle.js'), 'utf8').includes('var TabManager = class'));
 
 // 已知环境问题记录（builder-debug.yml 存在即佐证打包发生过）
 check('环境记录', 'builder-debug.yml 存在（打包日志佐证）', fs.existsSync(path.join(buildDir, 'builder-debug.yml')));

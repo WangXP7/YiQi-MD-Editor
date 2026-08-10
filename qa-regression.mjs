@@ -4,8 +4,9 @@
  *
  * 验证范围：
  *  1. 三 Bug 根因与修复（sandbox:false / preload try/catch / app.js 防御检查）
- *  2. 改名完整性（墨笔 残留仅限 QA 测试数据与检测脚本）
- *  3. 打包产物（exe 存在、app.asar 内容）
+ *  2. 改名完整性（新名 YiQi@MD-Editor-wb-DSv4-Flash 1.0.0 / 旧名 V4-Flash 残留 0）
+ *  3. 多标签实现（TabManager / tabbar / FileOps.setActiveTab）
+ *  4. 打包产物（exe 存在、app.asar 内容）
  *
  * 说明：本脚本只读，不修改 src/ 源码。
  */
@@ -43,8 +44,9 @@ check('sandbox:false 行号约 191（实际 ' + sandboxLine + '）', sandboxLine
 check('console-message 转发存在', mainSrc.includes('console-message'));
 check('mainWindow close 拦截 → confirm-close', mainSrc.includes("action: 'confirm-close'"));
 check("菜单 help-markdown 动作（sendMenuAction('help-markdown')）", mainSrc.includes("sendMenuAction('help-markdown')"));
-check('APP_NAME = YiQi@MD-Editor-V4-Flash', mainSrc.includes("const APP_NAME = 'YiQi@MD-Editor-V4-Flash'"));
+check('APP_NAME = YiQi@MD-Editor-wb-DSv4-Flash', mainSrc.includes("const APP_NAME = 'YiQi@MD-Editor-wb-DSv4-Flash'"));
 check('main.js 不含 墨笔', !/墨笔/.test(mainSrc));
+check('main.js 窗口标题用 appTitle()（含版本号）', mainSrc.includes('title: appTitle()') && mainSrc.includes("APP_NAME + ' ' + app.getVersion()"));
 
 // 1.2 preload.js
 const preSrc = read(path.join(ROOT, 'src/preload.js'));
@@ -62,8 +64,9 @@ console.log('\n[1.3] src/renderer/app.js');
 check('init() 有 mdAPI 防御检查', /if\s*\(!window\.mdAPI\)/.test(appSrc));
 check("case 'help-markdown' 处理存在", appSrc.includes("case 'help-markdown'"));
 check("case 'confirm-close' 处理存在", appSrc.includes("case 'confirm-close'"));
-check('btn-open 绑定存在', /btn-open/.test(appSrc) && appSrc.includes('fileOps.openDialog'));
+check('btn-open 绑定存在（TabManager.openDialog）', /btn-open/.test(appSrc) && appSrc.includes('tabManager.openDialog'));
 check('initMenuActions 订阅 mdAPI.onMenuAction', appSrc.includes('window.mdAPI.onMenuAction'));
+check('app.js 引入 TabManager', appSrc.includes("import { TabManager } from './tabbar.js'"));
 check('app.js 不含 墨笔', !/墨笔/.test(appSrc));
 
 // 1.4 链路逻辑推演（sandbox:false 语义下 preload 可用 API）
@@ -86,26 +89,44 @@ check(
 );
 
 // ---------------------------------------------------------------------------
-console.log('\n--- 2. 改名完整性 ---');
+console.log('\n--- 2. 改名完整性（新名覆盖 + 旧名残留 0） ---');
 
 console.log('\n[2.1] package.json');
 const pkg = JSON.parse(read(path.join(ROOT, 'package.json')));
-check('package.json name = yiqi-md-editor-v4-flash', pkg.name === 'yiqi-md-editor-v4-flash');
-check('package.json productName = YiQi@MD-Editor-V4-Flash', pkg.productName === 'YiQi@MD-Editor-V4-Flash');
-check('package.json build.productName 一致', pkg.build && pkg.build.productName === 'YiQi@MD-Editor-V4-Flash');
+check('package.json name = yiqi-md-editor-wb-dsv4-flash', pkg.name === 'yiqi-md-editor-wb-dsv4-flash');
+check('package.json productName = YiQi@MD-Editor-wb-DSv4-Flash 1.0.0', pkg.productName === 'YiQi@MD-Editor-wb-DSv4-Flash 1.0.0');
+check('package.json build.productName 一致', pkg.build && pkg.build.productName === 'YiQi@MD-Editor-wb-DSv4-Flash 1.0.0');
+check('package.json build.nsis.shortcutName 一致', pkg.build && pkg.build.nsis && pkg.build.nsis.shortcutName === 'YiQi@MD-Editor-wb-DSv4-Flash 1.0.0');
 
 console.log('\n[2.2] src/renderer/index.html');
 const htmlSrc = read(path.join(ROOT, 'src/renderer/index.html'));
-check('<title>YiQi@MD-Editor-V4-Flash</title>', /<title>YiQi@MD-Editor-V4-Flash<\/title>/.test(htmlSrc));
-check('#app-logo 为 YiQi@MD-Editor-V4-Flash', htmlSrc.includes('>YiQi@MD-Editor-V4-Flash</span>'));
+check('<title>YiQi@MD-Editor-wb-DSv4-Flash 1.0.0</title>', /<title>YiQi@MD-Editor-wb-DSv4-Flash 1\.0\.0<\/title>/.test(htmlSrc));
+check('#app-logo 为 YiQi@MD-Editor-wb-DSv4-Flash（短名）', htmlSrc.includes('>YiQi@MD-Editor-wb-DSv4-Flash</span>'));
+check('index.html 含 #tabbar 多标签容器', htmlSrc.includes('id="tabbar"'));
 check('index.html 不含 墨笔', !/墨笔/.test(htmlSrc));
 
-console.log('\n[2.3] 全项目 墨笔 残留扫描（排除 node_modules、.git、build）');
+console.log('\n[2.3] 多标签实现（静态验证）');
+const tabbarSrc = read(path.join(ROOT, 'src/renderer/tabbar.js'));
+const fileopsSrc = read(path.join(ROOT, 'src/renderer/fileops.js'));
+const stylesSrc = read(path.join(ROOT, 'src/renderer/styles.css'));
+check('tabbar.js 导出 TabManager', tabbarSrc.includes('export class TabManager'));
+check('TabManager 标签状态模型完整（path/name/content/encoding/dirty/scrollTop/cursorPos/lastSavedContent）',
+  ['path:', 'name:', 'content:', 'encoding:', 'dirty:', 'scrollTop:', 'cursorPos:', 'lastSavedContent:'].every((k) => tabbarSrc.includes(k)));
+check('TabManager 实现 switchTab/closeTab/newTab/openInTab',
+  ['switchTab(id)', 'closeTab(id)', 'newTab()', 'openInTab(result)'].every((m) => tabbarSrc.includes(m)));
+check('TabManager 关闭未保存标签弹「保存/不保存/取消」', tabbarSrc.includes("buttons: ['保存', '不保存', '取消']"));
+check('FileOps 实现 setActiveTab', fileopsSrc.includes('setActiveTab(tab)'));
+check('styles.css 含 tabbar 样式', stylesSrc.includes('#tabbar') && stylesSrc.includes('.tab-close'));
+
+console.log('\n[2.4] 全项目 旧名残留扫描（排除 node_modules、.git、build、vendor、资源图）');
+// 注意：新名 YiQi@MD-Editor-wb-DSv4-Flash 的子串 DSv4-Flash 含 v4-Flash（大小写不敏感），
+// 因此用无歧义旧名模式：MD-Editor-V4-Flash（旧产品名）与 editor-v4-flash（旧 npm 名）。
 const scanDirs = ['src', 'scripts', '.'];
-const skipDirs = new Set(['node_modules', '.git', 'build']);
+const skipDirs = new Set(['node_modules', '.git', 'build', 'vendor']);
+// 检测脚本自身包含旧名模式字符串（用于匹配），属于检测逻辑例外
 const skipFiles = new Set(['qa-regression.mjs']);
-const residue = [];
-function walk(dir, depth) {
+const oldNameResidue = [];
+function walk2(dir, depth) {
   if (depth > 4) return;
   let entries;
   try { entries = readdirSafe(dir); } catch { return; }
@@ -114,34 +135,53 @@ function walk(dir, depth) {
     if (skipDirs.has(e)) continue;
     let st;
     try { st = statSync(full); } catch { continue; }
-    if (st.isDirectory()) { walk(full, depth + 1); continue; }
+    if (st.isDirectory()) { walk2(full, depth + 1); continue; }
     if (skipFiles.has(e)) continue;
+    if (/Chinese_ink_wash/.test(e)) continue;
     if (!/\.(js|mjs|cjs|json|html|css|md|yml|yaml)$/.test(e)) continue;
     try {
       const content = read(full);
       const lines = content.split('\n');
       lines.forEach((line, i) => {
-        if (/墨笔/.test(line)) residue.push(full + ':' + (i + 1));
+        if (/MD-Editor-V4-Flash|editor-v4-flash|yiqi-md-editor-v4-flash/i.test(line)) oldNameResidue.push(full + ':' + (i + 1));
       });
     } catch { /* ignore binary */ }
   }
 }
 function readdirSafe(d) { try { return require('node:fs').readdirSync(d); } catch { return []; } }
-walk(ROOT, 0);
-// 允许的残留：qa-verify.mjs ORIG 编码测试字符串 + scripts/verify-asar-fixes.cjs 检测逻辑
-const allowed = [
-  path.join(ROOT, 'qa-verify.mjs') + ':393', // ORIG 编码测试数据
-];
-const unexpected = residue.filter(r => !allowed.some(a => r.startsWith(a)) && !r.includes('verify-asar-fixes.cjs'));
-check('墨笔 残留仅限允许项（QA 测试数据 + 检测逻辑）', unexpected.length === 0, unexpected.join('; '));
-residue.forEach(r => console.log('    残留位置(允许): ' + r));
+walk2(ROOT, 0);
+check('旧名（MD-Editor-V4-Flash / editor-v4-flash）残留为 0', oldNameResidue.length === 0, oldNameResidue.join('; '));
+oldNameResidue.forEach(r => console.log('    旧名残留: ' + r));
+
+console.log('\n[2.5] 全项目 新名 覆盖扫描（排除 node_modules、.git、build）');
+const newNameResidue = [];
+function walk3(dir, depth) {
+  if (depth > 4) return;
+  let entries;
+  try { entries = readdirSafe(dir); } catch { return; }
+  for (const e of entries) {
+    const full = path.join(dir, e);
+    if (skipDirs.has(e)) continue;
+    let st;
+    try { st = statSync(full); } catch { continue; }
+    if (st.isDirectory()) { walk3(full, depth + 1); continue; }
+    if (/Chinese_ink_wash/.test(e)) continue;
+    if (!/\.(js|mjs|cjs|json|html|css|md|yml|yaml)$/.test(e)) continue;
+    try {
+      const content = read(full);
+      if (/YiQi@MD-Editor-wb-DSv4-Flash/.test(content)) newNameResidue.push(full);
+    } catch { /* ignore binary */ }
+  }
+}
+walk3(ROOT, 0);
+check('新名 YiQi@MD-Editor-wb-DSv4-Flash 已覆盖 ' + newNameResidue.length + ' 个文件（src/scripts/README/QA）', newNameResidue.length >= 12, newNameResidue.join('; '));
 
 // ---------------------------------------------------------------------------
 console.log('\n--- 3. 打包产物 ---');
 
 const buildDir = path.join(ROOT, 'build');
-const portable = path.join(buildDir, 'YiQi@MD-Editor-V4-Flash-1.0.0-portable-x64.exe');
-const nsis = path.join(buildDir, 'YiQi@MD-Editor-V4-Flash-1.0.0-x64.exe');
+const portable = path.join(buildDir, 'YiQi@MD-Editor-wb-DSv4-Flash 1.0.0-portable-x64.exe');
+const nsis = path.join(buildDir, 'YiQi@MD-Editor-wb-DSv4-Flash 1.0.0-x64.exe');
 const asarPath = path.join(buildDir, 'win-unpacked', 'resources', 'app.asar');
 
 console.log('\n[3.1] build 产物存在性与大小');
@@ -185,7 +225,7 @@ if (existsSync(asarPath)) {
 
   const mainIn = extractAny('src/main.js') || '';
   check('asar main.js sandbox:false', /sandbox:\s*false/.test(mainIn));
-  check('asar main.js APP_NAME 新名', mainIn.includes("const APP_NAME = 'YiQi@MD-Editor-V4-Flash'"));
+  check('asar main.js APP_NAME 新名', mainIn.includes("const APP_NAME = 'YiQi@MD-Editor-wb-DSv4-Flash'"));
   check('asar main.js 不含 墨笔', !/墨笔/.test(mainIn));
 
   const preIn = extractAny('src/preload.js') || '';
@@ -197,7 +237,11 @@ if (existsSync(asarPath)) {
   check('asar bundle.js 不含 墨笔', !/墨笔/.test(bundleIn));
 
   const idxIn = extractAny('src/renderer/index.html') || '';
-  check('asar index.html title 新名', /<title>YiQi@MD-Editor-V4-Flash<\/title>/.test(idxIn));
+  check('asar index.html title 新名（含版本号）', /<title>YiQi@MD-Editor-wb-DSv4-Flash 1\.0\.0<\/title>/.test(idxIn));
+  check('asar index.html 含 #tabbar', idxIn.includes('id="tabbar"'));
+
+  const tabbarIn = extractAny('src/renderer/tabbar.js') || '';
+  check('asar 含 tabbar.js 且导出 TabManager', tabbarIn.includes('export class TabManager'));
 }
 
 // ---------------------------------------------------------------------------

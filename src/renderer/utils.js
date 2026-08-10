@@ -1,5 +1,5 @@
 /**
- * YiQi@MD-Editor-V4-Flash - 工具函数（ESM）
+ * YiQi@MD-Editor-wb-DSv4-Flash - 工具函数（ESM）
  *
  * 提供防抖、字数统计、路径处理、HTML 转义等通用能力。
  */
