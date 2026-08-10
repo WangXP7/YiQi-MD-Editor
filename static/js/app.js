@@ -63,19 +63,33 @@
 
     const renderer = new marked.Renderer();
 
-    renderer.code = function ({ text, lang }) {
-      const validLang = lang && typeof hljs !== 'undefined' && hljs.getLanguage(lang) ? lang : '';
+    // FIX: defensive code renderer — marked v12 may pass undefined text in edge cases.
+    // Always coerce to string and wrap highlight calls in try/catch.
+    renderer.code = function (token) {
+      // Handle both v12 object API ({text, lang}) and legacy positional API
+      let text, lang;
+      if (token && typeof token === 'object' && 'text' in token) {
+        text = token.text;
+        lang = token.lang;
+      } else if (typeof token === 'string') {
+        text = token;
+        lang = arguments[1];
+      }
+      const safeText = (text == null) ? '' : String(text);
+      const safeLang = (lang == null) ? '' : String(lang);
+
+      const validLang = safeLang && typeof hljs !== 'undefined' && hljs.getLanguage(safeLang) ? safeLang : '';
       let highlighted;
-      if (validLang) {
-        try {
-          highlighted = hljs.highlight(text, { language: validLang }).value;
-        } catch (e) {
-          highlighted = hljs.highlightAuto(text).value;
+      try {
+        if (validLang) {
+          highlighted = hljs.highlight(safeText, { language: validLang }).value;
+        } else if (typeof hljs !== 'undefined') {
+          highlighted = hljs.highlightAuto(safeText).value;
+        } else {
+          highlighted = escapeHtml(safeText);
         }
-      } else if (typeof hljs !== 'undefined') {
-        highlighted = hljs.highlightAuto(text).value;
-      } else {
-        highlighted = escapeHtml(text);
+      } catch (e) {
+        highlighted = escapeHtml(safeText);
       }
       const langLabel = validLang ? `<span class="code-lang">${validLang}</span>` : '';
       return `<div class="code-block-wrapper">${langLabel}<pre><code class="hljs language-${validLang}">${highlighted}</code></pre></div>`;
@@ -83,11 +97,12 @@
 
     renderer.image = function (href, title, text) {
       const titleAttr = title ? ` title="${title}"` : '';
-      return `<img src="${href}" alt="${text || ''}"${titleAttr} loading="lazy" onerror="this.style.display='none'" />`;
+      const safeAlt = text == null ? '' : String(text);
+      return `<img src="${href}" alt="${safeAlt}"${titleAttr} loading="lazy" onerror="this.style.display='none'" />`;
     };
 
     renderer.table = function (header, body) {
-      return `<div class="table-wrapper"><table><thead>${header}</thead><tbody>${body}</tbody></table></div>`;
+      return `<div class="table-wrapper"><table><thead>${header || ''}</thead><tbody>${body || ''}</tbody></table></div>`;
     };
 
     renderer.checkbox = function (checked) {
@@ -98,7 +113,8 @@
   }
 
   function escapeHtml(s) {
-    return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    if (s == null) return '';
+    return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
   }
 
   // ── EasyMDE editor ──────────────────────────────────────────────
