@@ -1,0 +1,22 @@
+# Build outputs
+build/
+dist/
+venv/
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.so
+
+# IDE
+.vscode/
+.idea/
+*.swp
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Testing
+test_output.log

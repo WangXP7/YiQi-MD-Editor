@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>YiQi@MD-Editor-wb-DSv4-Pro v1.0</title>
+
+<!-- Vendor CSS (bundled locally) -->
+<link rel="stylesheet" href="../static/css/vendor/easymde.css">
+<link rel="stylesheet" href="../static/css/vendor/highlight-dark.css" id="hljs-theme">
+<link rel="stylesheet" href="../static/css/style.css">
+</head>
+<body>
+
+<div id="app">
+  <!-- ═══════ TITLE BAR ═══════ -->
+  <header id="titlebar">
+    <div class="tb-left">
+      <!-- YiQi Logo: stylized "YQ" monogram with amber glow -->
+      <svg class="tb-logo" viewBox="0 0 28 28" width="22" height="22">
+        <defs>
+          <linearGradient id="logoGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" style="stop-color:#f0a500"/>
+            <stop offset="50%" style="stop-color:#f7b733"/>
+            <stop offset="100%" style="stop-color:#f0a500"/>
+          </linearGradient>
+          <filter id="logoGlow">
+            <feGaussianBlur stdDeviation="0.8" result="blur"/>
+            <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+          </filter>
+        </defs>
+        <rect x="1" y="1" width="26" height="26" rx="5" fill="none" stroke="url(#logoGrad)" stroke-width="1.5" filter="url(#logoGlow)"/>
+        <text x="14" y="20" text-anchor="middle" font-size="15" font-weight="900" fill="url(#logoGrad)" font-family="Georgia,serif">YQ</text>
+      </svg>
+      <span class="tb-title" id="tb-title">YiQi@MD-Editor-wb-DSv4-Pro</span>
+      <span class="tb-version" id="tb-version">v1.0</span>
+    </div>
+    <div class="tb-right">
+      <button class="tb-btn" id="btn-theme" title="Toggle Theme">&#9728;</button>
+    </div>
+  </header>
+
+  <!-- ═══════ TOOLBAR ═══════ -->
+  <nav id="toolbar">
+    <div class="tb-group">
+      <button class="tb-btn-primary" id="btn-new" title="New (Ctrl+N)">&#128196; New</button>
+      <button class="tb-btn-primary" id="btn-open" title="Open (Ctrl+O)">&#128194; Open</button>
+      <button class="tb-btn-primary" id="btn-save" title="Save (Ctrl+S)">&#128190; Save</button>
+      <button class="tb-btn" id="btn-save-as" title="Save As (Ctrl+Shift+S)">&#128229; Save As</button>
+    </div>
+    <div class="tb-sep"></div>
+    <div class="tb-group">
+      <button class="tb-btn" id="btn-bold" title="Bold (Ctrl+B)"><b>B</b></button>
+      <button class="tb-btn" id="btn-italic" title="Italic (Ctrl+I)"><i>I</i></button>
+      <button class="tb-btn" id="btn-strike" title="Strikethrough"><s>S</s></button>
+      <button class="tb-btn" id="btn-code-inline" title="Inline Code">`</button>
+    </div>
+    <div class="tb-sep"></div>
+    <div class="tb-group">
+      <button class="tb-btn" id="btn-h1">H1</button>
+      <button class="tb-btn" id="btn-h2">H2</button>
+      <button class="tb-btn" id="btn-h3">H3</button>
+      <button class="tb-btn" id="btn-ul">&#8226;</button>
+      <button class="tb-btn" id="btn-ol">1.</button>
+      <button class="tb-btn" id="btn-task">&#9744;</button>
+      <button class="tb-btn" id="btn-quote">&#8220;</button>
+      <button class="tb-btn" id="btn-code-block">&lt;/&gt;</button>
+      <button class="tb-btn" id="btn-link">&#128279;</button>
+      <button class="tb-btn" id="btn-image">&#128247;</button>
+      <button class="tb-btn" id="btn-hr">&mdash;</button>
+    </div>
+    <div class="tb-spacer"></div>
+    <div class="tb-group">
+      <button class="tb-btn active" id="btn-view-split">&#9776;</button>
+      <button class="tb-btn" id="btn-view-edit">&#9998;</button>
+      <button class="tb-btn" id="btn-view-preview">&#128065;</button>
+    </div>
+    <div class="tb-sep"></div>
+    <button class="tb-btn" id="btn-export-html">&#128196; HTML</button>
+  </nav>
+
+  <!-- ═══════ MAIN CONTENT ═══════ -->
+  <main id="main">
+    <div id="editor-pane">
+      <textarea id="editor"></textarea>
+    </div>
+    <div id="splitter"></div>
+    <div id="preview-pane">
+      <div id="preview-container" class="markdown-body"></div>
+    </div>
+  </main>
+
+  <!-- ═══════ STATUS BAR ═══════ -->
+  <footer id="statusbar">
+    <span id="sb-file">No file open</span>
+    <span id="sb-auto">&#128338;</span>
+    <span id="sb-stats">Words: 0 &nbsp; Lines: 0 &nbsp; Chars: 0</span>
+    <span id="sb-cursor">Ln 1, Col 1</span>
+    <span id="sb-encoding">UTF-8</span>
+    <span id="sb-version">v1.0</span>
+  </footer>
+</div>
+
+<!-- ═══════ TOAST ═══════ -->
+<div id="toast-container"></div>
+
+<!-- ═══════ SCRIPTS (all bundled locally) ═══════ -->
+<script src="../static/js/vendor/marked.min.js"></script>
+<script src="../static/js/vendor/highlight.min.js"></script>
+<script src="../static/js/vendor/easymde.min.js"></script>
+<script src="../static/js/app.js"></script>
+
+</body>
+</html>
