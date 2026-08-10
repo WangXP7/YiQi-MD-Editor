@@ -43,42 +43,89 @@
   <!-- ═══════ TOOLBAR ═══════ -->
   <nav id="toolbar">
     <div class="tb-group">
-      <button class="tb-btn-primary" id="btn-new" title="New (Ctrl+N)">&#128196; New</button>
-      <button class="tb-btn-primary" id="btn-open" title="Open (Ctrl+O)">&#128194; Open</button>
-      <button class="tb-btn-primary" id="btn-save" title="Save (Ctrl+S)">&#128190; Save</button>
-      <button class="tb-btn" id="btn-save-as" title="Save As (Ctrl+Shift+S)">&#128229; Save As</button>
+      <button class="tb-btn-primary" id="btn-new" title="新建 Ctrl+N">
+        <svg width="15" height="15" viewBox="0 0 16 16"><rect x="2" y="2" width="12" height="12" rx="2" fill="none" stroke="currentColor" stroke-width="1.5"/><line x1="8" y1="5" x2="8" y2="11" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><line x1="5" y1="8" x2="11" y2="8" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+        新建
+      </button>
+      <button class="tb-btn-primary" id="btn-open" title="打开 Ctrl+O">
+        <svg width="15" height="15" viewBox="0 0 16 16"><path d="M2 3h5l2 2h5v8H2V3z" fill="none" stroke="currentColor" stroke-width="1.3"/><path d="M4.5 12.5l3-6 3 6" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        打开
+      </button>
+      <button class="tb-btn-primary" id="btn-save" title="保存 Ctrl+S">
+        <svg width="15" height="15" viewBox="0 0 16 16"><path d="M3 2v12h10V5l-3-3H3z" fill="none" stroke="currentColor" stroke-width="1.3"/><rect x="6" y="2" width="4" height="4" fill="none" stroke="currentColor" stroke-width="1"/></svg>
+        保存
+      </button>
+      <button class="tb-btn" id="btn-save-as" title="另存为 Ctrl+Shift+S">
+        <svg width="15" height="15" viewBox="0 0 16 16"><path d="M3 2v12h8V4.5L8.5 2H3z" fill="none" stroke="currentColor" stroke-width="1.3"/><rect x="5" y="2" width="3" height="3" fill="none" stroke="currentColor" stroke-width="0.8"/><line x1="5" y1="11" x2="11" y2="11" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/><line x1="8" y1="8.5" x2="8" y2="13.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+        另存为
+      </button>
     </div>
     <div class="tb-sep"></div>
-    <button class="tb-btn active" id="btn-outline" title="Toggle Outline">&#9776;</button>
+    <button class="tb-btn active" id="btn-outline" title="目录">
+      <svg width="14" height="14" viewBox="0 0 16 16"><line x1="3" y1="4" x2="13" y2="4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><line x1="3" y1="8" x2="13" y2="8" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><line x1="3" y1="12" x2="13" y2="12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+    </button>
     <div class="tb-sep"></div>
     <div class="tb-group">
-      <button class="tb-btn" id="btn-bold" title="Bold (Ctrl+B)"><b>B</b></button>
-      <button class="tb-btn" id="btn-italic" title="Italic (Ctrl+I)"><i>I</i></button>
-      <button class="tb-btn" id="btn-strike" title="Strikethrough"><s>S</s></button>
-      <button class="tb-btn" id="btn-code-inline" title="Inline Code">`</button>
+      <button class="tb-btn" id="btn-bold" title="粗体 Ctrl+B">
+        <svg width="13" height="13" viewBox="0 0 16 16"><path d="M4 3h5a3 3 0 010 6H4V3z" fill="none" stroke="currentColor" stroke-width="2"/><path d="M4 9h6a3 3 0 010 6H4V9z" fill="none" stroke="currentColor" stroke-width="2"/></svg>
+      </button>
+      <button class="tb-btn" id="btn-italic" title="斜体 Ctrl+I">
+        <svg width="13" height="13" viewBox="0 0 16 16"><line x1="5.5" y1="3" x2="10.5" y2="3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><line x1="6" y1="13" x2="11" y2="13" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><line x1="10" y1="3" x2="6.5" y2="13" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+      </button>
+      <button class="tb-btn" id="btn-strike" title="删除线">
+        <svg width="13" height="13" viewBox="0 0 16 16"><line x1="2" y1="8.5" x2="14" y2="8.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><text x="4" y="7.5" font-size="10" font-weight="700" fill="currentColor">S</text></svg>
+      </button>
+      <button class="tb-btn" id="btn-code-inline" title="行内代码">
+        <svg width="13" height="13" viewBox="0 0 16 16"><path d="M4.5 4L1 8l3.5 4M11.5 4L15 8l-3.5 4" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </button>
     </div>
     <div class="tb-sep"></div>
     <div class="tb-group">
-      <button class="tb-btn" id="btn-h1">H1</button>
-      <button class="tb-btn" id="btn-h2">H2</button>
-      <button class="tb-btn" id="btn-h3">H3</button>
-      <button class="tb-btn" id="btn-ul">&#8226;</button>
-      <button class="tb-btn" id="btn-ol">1.</button>
-      <button class="tb-btn" id="btn-task">&#9744;</button>
-      <button class="tb-btn" id="btn-quote">&#8220;</button>
-      <button class="tb-btn" id="btn-code-block">&lt;/&gt;</button>
-      <button class="tb-btn" id="btn-link">&#128279;</button>
-      <button class="tb-btn" id="btn-image">&#128247;</button>
-      <button class="tb-btn" id="btn-hr">&mdash;</button>
+      <button class="tb-btn" id="btn-h1" title="一级标题">H1</button>
+      <button class="tb-btn" id="btn-h2" title="二级标题">H2</button>
+      <button class="tb-btn" id="btn-h3" title="三级标题">H3</button>
+      <button class="tb-btn" id="btn-ul" title="无序列表">
+        <svg width="13" height="13" viewBox="0 0 16 16"><circle cx="3.5" cy="4" r="1.5" fill="currentColor"/><line x1="6.5" y1="4" x2="13" y2="4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><circle cx="3.5" cy="8" r="1.5" fill="currentColor"/><line x1="6.5" y1="8" x2="13" y2="8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><circle cx="3.5" cy="12" r="1.5" fill="currentColor"/><line x1="6.5" y1="12" x2="13" y2="12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+      </button>
+      <button class="tb-btn" id="btn-ol" title="有序列表">
+        <svg width="13" height="13" viewBox="0 0 16 16"><text x="1.5" y="5.5" font-size="7" font-weight="700" fill="currentColor">1</text><line x1="6.5" y1="4" x2="13" y2="4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><text x="1.5" y="9.5" font-size="7" font-weight="700" fill="currentColor">2</text><line x1="6.5" y1="8" x2="13" y2="8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><text x="1.5" y="13.5" font-size="7" font-weight="700" fill="currentColor">3</text><line x1="6.5" y1="12" x2="13" y2="12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+      </button>
+      <button class="tb-btn" id="btn-task" title="任务列表">
+        <svg width="13" height="13" viewBox="0 0 16 16"><rect x="2" y="3" width="3" height="3" rx="0.5" fill="none" stroke="currentColor" stroke-width="1.2"/><line x1="6.5" y1="4.5" x2="13" y2="4.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><rect x="2" y="6.5" width="3" height="3" rx="0.5" fill="none" stroke="currentColor" stroke-width="1.2"/><line x1="2.5" y1="7.5" x2="4" y2="9" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/><line x1="6.5" y1="8" x2="13" y2="8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><rect x="2" y="10" width="3" height="3" rx="0.5" fill="none" stroke="currentColor" stroke-width="1.2"/><line x1="6.5" y1="11.5" x2="13" y2="11.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+      </button>
+      <button class="tb-btn" id="btn-quote" title="引用">
+        <svg width="13" height="13" viewBox="0 0 16 16"><rect x="3" y="3" width="2.5" height="4" rx="0.5" fill="currentColor" opacity="0.3"/><line x1="6" y1="4" x2="13" y2="4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><line x1="6" y1="8" x2="13" y2="8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><line x1="6" y1="12" x2="11" y2="12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+      </button>
+      <button class="tb-btn" id="btn-code-block" title="代码块">
+        <svg width="13" height="13" viewBox="0 0 16 16"><rect x="1.5" y="2.5" width="13" height="11" rx="1.5" fill="none" stroke="currentColor" stroke-width="1.2"/><line x1="5.5" y1="5.5" x2="3" y2="8" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/><line x1="3" y1="10.5" x2="5.5" y2="10.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/><line x1="7" y1="5.5" x2="9" y2="10.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/><line x1="10.5" y1="5.5" x2="13" y2="5.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/><line x1="10.5" y1="8" x2="13" y2="8" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+      </button>
+      <button class="tb-btn" id="btn-link" title="链接">
+        <svg width="13" height="13" viewBox="0 0 16 16"><path d="M7 4h3a4 4 0 010 8H7M9 4H6a4 4 0 000 8h3" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+      </button>
+      <button class="tb-btn" id="btn-image" title="图片">
+        <svg width="13" height="13" viewBox="0 0 16 16"><rect x="1.5" y="2.5" width="13" height="11" rx="1.5" fill="none" stroke="currentColor" stroke-width="1.2"/><circle cx="5.5" cy="6" r="1.5" fill="none" stroke="currentColor" stroke-width="1"/><path d="M2 11l4-3 3 2 2-2 3.5 3" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </button>
+      <button class="tb-btn" id="btn-hr" title="分隔线">
+        <svg width="13" height="13" viewBox="0 0 16 16"><line x1="2" y1="8" x2="14" y2="8" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+      </button>
     </div>
     <div class="tb-spacer"></div>
     <div class="tb-group">
-      <button class="tb-btn active" id="btn-view-split">&#9776;</button>
-      <button class="tb-btn" id="btn-view-edit">&#9998;</button>
-      <button class="tb-btn" id="btn-view-preview">&#128065;</button>
+      <button class="tb-btn active" id="btn-view-split" title="分屏视图">
+        <svg width="14" height="14" viewBox="0 0 16 16"><rect x="1.5" y="2" width="6" height="12" rx="0.5" fill="none" stroke="currentColor" stroke-width="1.2"/><rect x="8.5" y="2" width="6" height="12" rx="0.5" fill="none" stroke="currentColor" stroke-width="1.2"/></svg>
+      </button>
+      <button class="tb-btn" id="btn-view-edit" title="仅编辑">
+        <svg width="14" height="14" viewBox="0 0 16 16"><path d="M2 14l4-1L14 5 11 2 2 11v3z" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/><line x1="11.5" y1="2.5" x2="13.5" y2="4.5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
+      </button>
+      <button class="tb-btn" id="btn-view-preview" title="仅预览">
+        <svg width="14" height="14" viewBox="0 0 16 16"><circle cx="8" cy="8" r="3" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M1 8c2-5 12-5 14 0-2 5-12 5-14 0z" fill="none" stroke="currentColor" stroke-width="1.5"/></svg>
+      </button>
     </div>
     <div class="tb-sep"></div>
-    <button class="tb-btn" id="btn-export-html">&#128196; HTML</button>
+    <button class="tb-btn" id="btn-export-html" title="导出HTML">
+      <svg width="14" height="14" viewBox="0 0 16 16"><rect x="2" y="2" width="12" height="12" rx="1.5" fill="none" stroke="currentColor" stroke-width="1.2"/><line x1="8" y1="4" x2="8" y2="12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><polyline points="4.5,7.5 8,4 11.5,7.5" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      导出
+    </button>
   </nav>
 
   <!-- ═══════ MAIN CONTENT ═══════ -->
@@ -101,10 +148,10 @@
 
   <!-- ═══════ STATUS BAR ═══════ -->
   <footer id="statusbar">
-    <span id="sb-file">No file open</span>
+    <span id="sb-file">未打开文件</span>
     <span id="sb-auto">&#128338;</span>
-    <span id="sb-stats">Words: 0 &nbsp; Lines: 0 &nbsp; Chars: 0</span>
-    <span id="sb-cursor">Ln 1, Col 1</span>
+    <span id="sb-stats">字数: 0 &nbsp; 行: 0 &nbsp; 字符: 0</span>
+    <span id="sb-cursor">第1行, 第1列</span>
     <span id="sb-encoding">UTF-8</span>
     <span id="sb-version">v1.0</span>
   </footer>

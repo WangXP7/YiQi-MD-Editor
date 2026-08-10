@@ -159,10 +159,17 @@ html, body {
   background: transparent; color: var(--text-secondary);
   font-size: 12.5px; cursor: pointer;
   border-radius: var(--radius-sm); font-family: inherit;
-  display: flex; align-items: center; gap: 4px;
+  display: flex; align-items: center; gap: 5px;
   white-space: nowrap; transition: var(--transition);
   flex-shrink: 0;
 }
+.tb-btn svg, .tb-btn-primary svg {
+  flex-shrink: 0;
+  opacity: 0.75;
+}
+.tb-btn:hover svg, .tb-btn-primary:hover svg { opacity: 1; }
+.tb-btn-primary:hover svg { color: #1a1a2e; }
+.tb-btn.active svg { opacity: 1; color: var(--accent); }
 .tb-btn:hover { background: var(--bg-elevated); color: var(--text-primary); }
 .tb-btn.active {
   background: var(--accent-dim); color: var(--accent);

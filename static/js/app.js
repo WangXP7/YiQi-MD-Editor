@@ -202,7 +202,7 @@
       }
     }
     if (headings.length === 0) {
-      dom.outlineList.innerHTML = '<div style="padding:12px 14px;color:var(--text-muted);font-size:11px;font-style:italic;">No headings yet</div>';
+      dom.outlineList.innerHTML = '<div style="padding:12px 14px;color:var(--text-muted);font-size:11px;font-style:italic;">暂无标题</div>';
       return;
     }
     dom.outlineList.innerHTML = headings.map(function (h, idx) {
@@ -235,14 +235,14 @@
     const lines = text.split('\n').length;
     const chars = text.length;
     const words = text.trim() ? text.trim().split(/\s+/).length : 0;
-    dom.sbStats.textContent = `Words: ${words} \u00A0 Lines: ${lines} \u00A0 Chars: ${chars}`;
+    dom.sbStats.textContent = `字数: ${words} \u00A0 行: ${lines} \u00A0 字符: ${chars}`;
   }
 
   function updateCursorPos() {
     if (!easyMDE) return;
     const cm = easyMDE.codemirror;
     const pos = cm.getCursor();
-    dom.sbCursor.textContent = `Ln ${pos.line + 1}, Col ${pos.ch + 1}`;
+    dom.sbCursor.textContent = `第${pos.line + 1}行, 第${pos.ch + 1}列`;
   }
 
   // ── Window title helper ──────────────────────────────────────────
@@ -263,12 +263,12 @@
       if (result.cancelled) return;
       if (result.success) {
         applyLoadedFile(result);
-        showToast(`Opened: ${result.name}`, 'success');
+        showToast('已打开: ' + result.name, 'success');
       } else {
-        showToast('Error: ' + (result.error || 'unknown'), 'error');
+        showToast('错误: ' + (result.error || '未知'), 'error');
       }
     } catch (e) {
-      showToast('Open failed: ' + e.message, 'error');
+      showToast('打开失败: ' + e.message, 'error');
     }
   }
 
@@ -283,7 +283,7 @@
         showToast('Error: ' + result.error, 'error');
       }
     } catch (e) {
-      showToast('Open failed: ' + e.message, 'error');
+      showToast('打开失败: ' + e.message, 'error');
     }
   }
 
@@ -323,9 +323,9 @@
         dom.sbFile.textContent = result.name;
         updateWindowTitle(result.name);
         updateAutoIndicator();
-        showToast('Saved: ' + result.name, 'success');
+        showToast('保存成功: ' + result.name, 'success');
       } else {
-        showToast('Save error: ' + result.error, 'error');
+        showToast('保存失败: ' + (result.error || '未知'), 'error');
       }
     } catch (e) {
       showToast('Save failed: ' + e.message, 'error');
@@ -366,7 +366,7 @@
     try {
       const result = JSON.parse(await api().export_html(path, fullHTML));
       if (result.success) {
-        showToast('Exported: ' + path, 'success');
+        showToast('导出成功: ' + path, 'success');
       } else {
         showToast('Export failed: ' + result.error, 'error');
       }
@@ -478,16 +478,16 @@
     // FIX: pywebview doesn't support confirm() native dialog
     // Use a toast-based confirmation instead
     if (state.isDirty) {
-      showToast('You have unsaved changes. Use Save or Save As first.', 'error');
+      showToast('���未保存的更改，请先保存', 'error');
       return;
     }
-    easyMDE.value('# New Document\n\nStart writing here...\n');
+    easyMDE.value('# 新建文档\n\n开始写作...\n');
     state.currentFile = null;
     state.currentPath = null;
     state.isDirty = false;
     state.lastSavedContent = easyMDE.value();
-    dom.sbFile.textContent = 'Untitled';
-    updateWindowTitle('Untitled');
+    dom.sbFile.textContent = '未命名';
+    updateWindowTitle('未命名');
     updateAutoIndicator();
     updatePreview();
     updateStats();
@@ -656,7 +656,7 @@ def hello():
       // Wait for pywebview API
       waitForPywebview();
     } catch (err) {
-      showToast('Init error: ' + err.message, 'error');
+      showToast('初始化失败: ' + err.message, 'error');
     }
   }
 
