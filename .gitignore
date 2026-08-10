@@ -1,0 +1,20 @@
+# 依赖目录（package.json / package-lock.json 保留提交）
+tools/node_modules/
+
+# PyInstaller 构建产物
+build/
+tools/specbuild/build/
+tools/specbuild/build2/
+tools/specbuild/build_*/
+dist/
+dist2/
+
+# 注意：release/ 目录与其中 exe 为交付物，必须提交，不要忽略
+
+# Python 缓存
+__pycache__/
+*.pyc
+
+# QA / 探测临时文件
+qa_*
+probe_new.txt

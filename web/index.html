@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>YiQi@MD-Editor-wb-KimiK3 v1.0.0</title>
+<!-- 本地化第三方库（全部离线内嵌，禁止 CDN） -->
+<link rel="stylesheet" href="vendor/katex/katex.min.css">
+<link rel="stylesheet" href="vendor/texmath/texmath.css">
+<link rel="stylesheet" href="vendor/highlight/github-dark.css" id="hl-theme-dark">
+<link rel="stylesheet" href="vendor/highlight/github.css" id="hl-theme-light" disabled>
+<link rel="stylesheet" href="style.css">
+</head>
+<body class="view-split">
+
+<!-- 顶栏工具条 -->
+<header id="toolbar">
+  <div class="brand">YiQi@MD-Editor-wb-<span class="brand-accent">KimiK3</span><span class="brand-version">v1.0.0</span></div>
+  <div class="tool-group">
+    <button id="btn-open" class="tool-btn" title="打开 (Ctrl+O)">打开</button>
+    <button id="btn-save" class="tool-btn" title="保存 (Ctrl+S)">保存</button>
+    <button id="btn-save-as" class="tool-btn" title="另存为">另存为</button>
+    <button id="btn-export" class="tool-btn" title="导出自包含 HTML">导出 HTML</button>
+  </div>
+  <div class="tool-group">
+    <button id="btn-view" class="tool-btn" title="切换 编辑/分屏/预览 (Ctrl+E)">视图: 分屏</button>
+    <button id="btn-search" class="tool-btn" title="搜索 (Ctrl+F)">搜索</button>
+  </div>
+  <div class="tool-group">
+    <button id="btn-font-dec" class="tool-btn" title="减小字体">A−</button>
+    <span id="font-size-label" class="font-size-label">15px</span>
+    <button id="btn-font-inc" class="tool-btn" title="增大字体">A+</button>
+  </div>
+  <div class="tool-group">
+    <button id="btn-theme" class="tool-btn" title="切换明暗主题">☀ 浅色</button>
+  </div>
+</header>
+
+<!-- 三栏主区 -->
+<main id="workspace">
+  <aside id="toc-panel">
+    <div id="toc-header">
+      <span class="toc-title">目录大纲</span>
+      <button id="btn-toc-toggle" class="tool-btn toc-toggle" title="折叠/展开目录">⟨</button>
+    </div>
+    <nav id="toc"></nav>
+  </aside>
+  <section id="editor-pane">
+    <textarea id="editor" spellcheck="false" placeholder="在此输入 Markdown…… 支持拖入 .md 文件"></textarea>
+  </section>
+  <section id="preview-pane">
+    <div id="preview" class="markdown-body"></div>
+  </section>
+</main>
+
+<!-- 搜索条 -->
+<div id="search-bar" hidden>
+  <input id="search-input" type="text" placeholder="在文档中搜索…">
+  <span id="search-count" class="search-count">0/0</span>
+  <button id="btn-search-prev" class="tool-btn">上一个</button>
+  <button id="btn-search-next" class="tool-btn">下一个</button>
+  <button id="btn-search-close" class="tool-btn">关闭</button>
+</div>
+
+<!-- 状态栏 -->
+<footer id="statusbar">
+  <span id="status-path" class="status-path">未打开文件</span>
+  <span class="status-flex"></span>
+  <span id="status-stats">字符 0 · 词 0 · 行 0</span>
+  <span id="status-cursor">行 1, 列 1</span>
+  <span id="status-modified" class="status-modified" title="有未保存修改" hidden>●</span>
+</footer>
+
+<!-- 本地化第三方库 -->
+<script src="vendor/markdown-it/markdown-it.min.js"></script>
+<script src="vendor/plugins/markdown-it-task-lists.min.js"></script>
+<script src="vendor/plugins/markdown-it-footnote.min.js"></script>
+<script src="vendor/plugins/markdown-it-emoji.min.js"></script>
+<script src="vendor/plugins/markdown-it-deflist.min.js"></script>
+<script src="vendor/plugins/markdown-it-abbr.min.js"></script>
+<script src="vendor/plugins/markdown-it-sub.min.js"></script>
+<script src="vendor/plugins/markdown-it-sup.min.js"></script>
+<script src="vendor/plugins/markdown-it-mark.min.js"></script>
+<script src="vendor/plugins/markdown-it-ins.min.js"></script>
+<script src="vendor/plugins/markdown-it-anchor.min.js"></script>
+<script src="vendor/plugins/markdown-it-toc-done-right.min.js"></script>
+<script src="vendor/plugins/markdown-it-container.min.js"></script>
+<script src="vendor/katex/katex.min.js"></script>
+<script src="vendor/texmath/texmath.js"></script>
+<script src="vendor/mermaid/mermaid.min.js"></script>
+<script src="vendor/highlight/highlight.min.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
