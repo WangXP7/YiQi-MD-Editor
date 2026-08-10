@@ -1,10 +1,55 @@
+# 依赖与构建产物
 node_modules
+node_modules/
 dist
 dist-electron
 release
+release/
 out
 dist-pkg
 dist-pkg*
+build/
+
+# 可执行文件
 *.exe
+
+# Python 旧方案遗留
+__pycache__/
+*.pyc
+*.spec
+src/web/__test__.html
+src/main.py
+src/web/
+make_icon.py
+test_render.py
+version_info.txt
+
+# 日志与临时文件
 *.log
+*.tmp
+*.bak
+out.txt
+err.txt
+pip_log.txt
+npm_log.txt
+npm_rc.txt
+build_log.txt
+build_rc.txt
+winget_git.txt
+winget_rc.txt
+electron_out.txt
+electron_err.txt
+py_ver.txt
+
+# 系统与 IDE
 .DS_Store
+Thumbs.db
+desktop.ini
+.vscode/
+.idea/
+*.swp
+*~
+
+# 但保留图标资源
+!build/icon.ico
+!build/icon.png

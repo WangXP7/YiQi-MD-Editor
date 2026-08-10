@@ -1,0 +1,33 @@
+# UTF-8
+#
+# PyInstaller version file
+# YiQi@MD-Editor-千问办公-Qwen3.8-Max v1.0.0
+#
+VSVersionInfo(
+  ffi=FixedFileInfo(
+    filevers=(1, 0, 0, 0),
+    prodvers=(1, 0, 0, 0),
+    mask=0x3f,
+    flags=0x0,
+    OS=0x40004,
+    fileType=0x1,
+    subtype=0x0,
+    date=(0, 0)
+  ),
+  kids=[
+    StringFileInfo(
+      [
+      StringTable(
+        u'080404B0',
+        [StringStruct(u'CompanyName', u'YiQi'),
+        StringStruct(u'FileDescription', u'YiQi@MD-Editor-千问办公-Qwen3.8-Max · Markdown 编辑器'),
+        StringStruct(u'FileVersion', u'1.0.0.0'),
+        StringStruct(u'InternalName', u'YiQiMD-Editor'),
+        StringStruct(u'LegalCopyright', u'Copyright (c) 2026 YiQi / WangXP7'),
+        StringStruct(u'OriginalFilename', u'YiQi@MD-Editor-千问办公-Qwen3.8-Max-v1.0.0.exe'),
+        StringStruct(u'ProductName', u'YiQi@MD-Editor-千问办公-Qwen3.8-Max'),
+        StringStruct(u'ProductVersion', u'1.0.0')])
+      ]),
+    VarFileInfo([VarStruct(u'Translation', [2052, 1200])])
+  ]
+)
