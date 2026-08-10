@@ -25,6 +25,7 @@
     isDirty: false,
     theme: 'dark',
     viewMode: 'split',
+    outlineVisible: true,
     lastSavedContent: '',
     autoSaveTimer: null,
   };
@@ -39,6 +40,9 @@
   const dom = {
     app: $('#app'),
     btnTheme: $('#btn-theme'),
+    outlinePane: $('#outline-pane'),
+    outlineList: $('#outline-list'),
+    splitterOutline: $('#splitter-outline'),
     editorPane: $('#editor-pane'),
     previewPane: $('#preview-pane'),
     splitter: $('#splitter'),
@@ -155,6 +159,72 @@
       dom.previewContainer.innerHTML = marked.parse(md);
     } catch (e) {
       dom.previewContainer.innerHTML = `<p class="error">Preview error: ${e.message}</p>`;
+    }
+    // Inject copy buttons into all code blocks AND long text blocks
+    injectCopyButtons();
+    // Update outline from headings
+    updateOutline(md);
+  }
+
+  // ── Copy Button Injection ────────────────────────────────────────
+  function injectCopyButtons() {
+    // Code blocks
+    dom.previewContainer.querySelectorAll('.code-block-wrapper pre').forEach(function (pre) {
+      // Avoid duplicating copy buttons
+      if (pre.querySelector('.copy-btn')) return;
+      var btn = document.createElement('button');
+      btn.className = 'copy-btn';
+      btn.textContent = 'Copy';
+      btn.onclick = function () {
+        var code = pre.querySelector('code');
+        var text = code ? code.textContent : pre.textContent;
+        navigator.clipboard.writeText(text).then(function () {
+          btn.textContent = 'Copied!';
+          btn.classList.add('copied');
+          setTimeout(function () { btn.textContent = 'Copy'; btn.classList.remove('copied'); }, 1500);
+        }).catch(function () {
+          showToast('Copy failed', 'error');
+        });
+      };
+      pre.parentNode.appendChild(btn);
+    });
+  }
+
+  // ── Outline Generator ────────────────────────────────────────────
+  function updateOutline(md) {
+    if (!dom.outlineList) return;
+    var headings = [];
+    var lines = md.split('\n');
+    for (var i = 0; i < lines.length; i++) {
+      var m = lines[i].match(/^(#{1,6})\s+(.+)/);
+      if (m) {
+        headings.push({ level: m[1].length, text: m[2].trim() });
+      }
+    }
+    if (headings.length === 0) {
+      dom.outlineList.innerHTML = '<div style="padding:12px 14px;color:var(--text-muted);font-size:11px;font-style:italic;">No headings yet</div>';
+      return;
+    }
+    dom.outlineList.innerHTML = headings.map(function (h, idx) {
+      return '<div class="outline-item lv-' + h.level + '" data-idx="' + idx + '">' +
+        escapeHtml(h.text) + '</div>';
+    }).join('');
+
+    // Click handler: scroll to heading in preview
+    var items = dom.outlineList.querySelectorAll('.outline-item');
+    for (var j = 0; j < items.length; j++) {
+      items[j].onclick = (function (idx) {
+        return function () {
+          scrollToHeading(idx);
+        };
+      })(j);
+    }
+  }
+
+  function scrollToHeading(idx) {
+    var headings = dom.previewContainer.querySelectorAll('h1, h2, h3, h4, h5, h6');
+    if (headings[idx]) {
+      headings[idx].scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
   }
 
@@ -346,6 +416,21 @@
     setTimeout(() => easyMDE?.codemirror?.refresh(), 50);
   }
 
+  // ── Outline Toggle ───────────────────────────────────────────────
+  function toggleOutline() {
+    state.outlineVisible = !state.outlineVisible;
+    if (state.outlineVisible) {
+      dom.outlinePane.classList.remove('hidden');
+      dom.splitterOutline.style.display = '';
+      $('#btn-outline').classList.add('active');
+    } else {
+      dom.outlinePane.classList.add('hidden');
+      dom.splitterOutline.style.display = 'none';
+      $('#btn-outline').classList.remove('active');
+    }
+    setTimeout(() => easyMDE?.codemirror?.refresh(), 200);
+  }
+
   // ── Theme ────────────────────────────────────────────────────────
   function setTheme(theme) {
     state.theme = theme;
@@ -416,6 +501,7 @@
     $('#btn-save').onclick = () => saveFile(false);
     $('#btn-save-as').onclick = () => saveFile(true);
     $('#btn-export-html').onclick = exportHTML;
+    $('#btn-outline').onclick = toggleOutline;
 
     $('#btn-bold').onclick = () => execCmd('bold');
     $('#btn-italic').onclick = () => execCmd('italic');
@@ -451,6 +537,7 @@
 
   // ── Splitter drag ────────────────────────────────────────────────
   function setupSplitter() {
+    // Main editor/preview splitter
     let dragging = false, startX = 0, startWidth = 0;
     dom.splitter.addEventListener('mousedown', (e) => {
       dragging = true;
@@ -476,6 +563,32 @@
       dom.splitter.classList.remove('dragging');
       document.body.style.cursor = '';
       document.body.style.userSelect = '';
+    });
+
+    // Outline splitter (drag to resize outline width)
+    let draggingOutline = false, outerStartX = 0, outerStartW = 0;
+    dom.splitterOutline.addEventListener('mousedown', (e) => {
+      draggingOutline = true;
+      outerStartX = e.clientX;
+      outerStartW = dom.outlinePane.getBoundingClientRect().width;
+      dom.splitterOutline.style.background = 'var(--accent)';
+      document.body.style.cursor = 'col-resize';
+      document.body.style.userSelect = 'none';
+    });
+    document.addEventListener('mousemove', (e) => {
+      if (!draggingOutline) return;
+      var dx = e.clientX - outerStartX;
+      var newW = outerStartW + dx;
+      var clamped = Math.max(140, Math.min(400, newW));
+      dom.outlinePane.style.flex = `0 0 ${clamped}px`;
+    });
+    document.addEventListener('mouseup', () => {
+      if (!draggingOutline) return;
+      draggingOutline = false;
+      dom.splitterOutline.style.background = '';
+      document.body.style.cursor = '';
+      document.body.style.userSelect = '';
+      setTimeout(() => easyMDE?.codemirror?.refresh(), 50);
     });
   }
 

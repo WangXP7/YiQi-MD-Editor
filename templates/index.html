@@ -49,6 +49,8 @@
       <button class="tb-btn" id="btn-save-as" title="Save As (Ctrl+Shift+S)">&#128229; Save As</button>
     </div>
     <div class="tb-sep"></div>
+    <button class="tb-btn active" id="btn-outline" title="Toggle Outline">&#9776;</button>
+    <div class="tb-sep"></div>
     <div class="tb-group">
       <button class="tb-btn" id="btn-bold" title="Bold (Ctrl+B)"><b>B</b></button>
       <button class="tb-btn" id="btn-italic" title="Italic (Ctrl+I)"><i>I</i></button>
@@ -81,6 +83,13 @@
 
   <!-- ═══════ MAIN CONTENT ═══════ -->
   <main id="main">
+    <aside id="outline-pane" class="show">
+      <div id="outline-header">
+        <span>&#128214; Outline</span>
+      </div>
+      <nav id="outline-list"></nav>
+    </aside>
+    <div id="splitter-outline"></div>
     <div id="editor-pane">
       <textarea id="editor"></textarea>
     </div>
