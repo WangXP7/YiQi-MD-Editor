@@ -1,0 +1,70 @@
+sequenceDiagram
+    autonumber
+
+    %% ============ 序列 1：目录大纲点击 → 编辑/预览同步定位 ============
+    box rgb(235,245,255) 序列1 大纲点击联动
+        participant U as 用户
+        participant SB as Sidebar
+        participant Ctx as AppContext/App
+        participant EV as EditorView(CodeMirror)
+        participant PV as PreviewPane(.preview-pane)
+    end
+
+    U->>SB: 点击 TOC 条目 t(id, line)
+    SB->>Ctx: navigateToc(t.id)
+    Note over Ctx: sync.locked=true; sync.lastSource='toc'
+    Ctx->>EV: doc.line(t.line+1).from → pos
+    Ctx->>EV: dispatch({selection:{anchor:pos}})
+    Ctx->>EV: scrollIntoView(pos, {y:'start'})
+    Ctx->>PV: scrollPreviewToId(container, t.id)
+    PV->>PV: container.scrollTop = el.offsetTop
+    Ctx->>Ctx: setTimeout(350) → sync.locked=false
+
+    %% ============ 序列 2：多标签 打开/切换/关闭 ============
+    box rgb(240,255,240) 序列2 多标签生命周期
+        participant M as 菜单/快捷键
+        participant App as App
+        participant API as window.api(IPC)
+        participant ST as StatusBar/TabBar
+        participant Dlg as UnsavedDialog
+    end
+
+    M->>App: open / new / closeTab / nextTab
+    Note over App: openFile: 读文件→若存在同path标签则switchTab，否则push新tab
+    App->>API: openFile()/saveFile()
+    API-->>App: {path, content, name}
+    App->>ST: tabs 变更 → 重渲染TabBar
+    Note over App: switchTab(id): 先存当前viewState(scrollTop,cursor)再setActiveTabId
+    App->>Dlg: closeTab(id) 且 tab.dirty=true → 显示三选一
+    Dlg-->>App: 保存 / 不保存 / 取消
+    alt 保存
+        App->>API: saveFile() → 再移除tab
+    else 不保存
+        App->>App: 直接移除tab
+    else 取消
+        App->>Dlg: 关闭弹窗
+    end
+    Note over App: tabs为空 → 保留空白 untitled.md 标签(不关窗口)
+
+    %% ============ 序列 3：悬浮复制失败兜底 ============
+    box rgb(255,245,235) 序列3 复制失败兜底
+        participant U2 as 用户
+        participant CB as CopyButton
+        participant CL as clipboard.copyText
+        participant T as 轻提示/Toast
+    end
+
+    U2->>CB: 点击复制(大段文字/路径/错误)
+    CB->>CL: copyText(text)
+    alt ClipboardItem 成功
+        CL-->>CB: resolve
+        CB->>CB: copied=true → 显示「✓」1.5s复位
+    else 回退 writeText 成功
+        CL-->>CB: resolve
+        CB->>CB: copied=true
+    else 两者皆失败
+        CL-->>CB: throw Error('clipboard_unavailable')
+        CB->>CB: failed=true
+        CB->>T: onError() → 「复制失败，请重试」
+    end
+    Note over CB: text.trim()==='' 时按钮 disabled/隐藏

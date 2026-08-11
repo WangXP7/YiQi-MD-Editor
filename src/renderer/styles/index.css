@@ -51,12 +51,18 @@ body {
 /* ---------- 顶部栏 ---------- */
 .top-bar {
   display: flex;
-  align-items: center;
-  gap: 16px;
-  padding: 8px 12px;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 0;
   background: var(--panel-bg);
   border-bottom: 1px solid var(--border);
   user-select: none;
+}
+.top-bar-row {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 8px 12px;
 }
 .brand {
   font-weight: 700;
@@ -603,6 +609,137 @@ body {
 /* 尊重 reduce-motion 偏好 */
 @media (prefers-reduced-motion: reduce) {
   .copy-btn {
+    transition: none;
+  }
+}
+
+/* ---------- 第三轮新增：多标签栏 / 大纲高亮 / 复制失败提示 ---------- */
+
+/* 顶部标签栏：横向滚动，不挤压工具栏 */
+.tab-bar {
+  display: flex;
+  align-items: stretch;
+  gap: 0;
+  overflow-x: auto;
+  padding: 0 8px;
+  border-top: 1px solid var(--border);
+  background: var(--bg);
+  scrollbar-width: thin;
+}
+.tab {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 10px;
+  max-width: 200px;
+  border-right: 1px solid var(--border);
+  color: var(--fg);
+  cursor: pointer;
+  white-space: nowrap;
+  user-select: none;
+  transition: background 0.15s ease;
+}
+.tab:hover {
+  background: var(--hover);
+}
+.tab.active {
+  background: var(--panel-bg);
+  border-bottom: 2px solid var(--accent);
+  font-weight: 600;
+}
+.tab-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+/* 未保存标记：显示星号 */
+.tab.dirty .tab-name::after {
+  content: ' *';
+  color: var(--muted);
+}
+.tab-close {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  padding: 0;
+  border: none;
+  border-radius: 4px;
+  background: transparent;
+  color: var(--muted);
+  font-size: 0.9rem;
+  line-height: 1;
+  cursor: pointer;
+}
+.tab-close:hover {
+  background: var(--border);
+  color: var(--fg);
+}
+
+/* 大纲当前章节高亮（scroll-spy 输出 activeId 时） */
+.toc-list li.active > a {
+  color: var(--accent);
+  font-weight: 700;
+  background: var(--hover);
+  border-left: 3px solid var(--accent);
+  padding-left: 5px;
+}
+
+/* 复制失败态：按钮变红，提示用户重试 */
+.copy-btn.failed {
+  background: #cf222e;
+  color: #fff;
+  border-color: #cf222e;
+  opacity: 1;
+}
+
+/* 复制失败全局轻提示 toast */
+.copy-toast {
+  position: fixed;
+  left: 50%;
+  bottom: 48px;
+  transform: translateX(-50%);
+  z-index: 200;
+  max-width: 70vw;
+  background: var(--panel-bg);
+  color: var(--fg);
+  border: 1px solid var(--accent);
+  border-radius: 8px;
+  padding: 8px 14px;
+  font-size: 0.85rem;
+  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.25);
+}
+
+/* 未保存关闭弹窗按钮组 */
+.unsaved-card .unsaved-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 16px;
+}
+.unsaved-card .unsaved-actions button {
+  flex: 1;
+  padding: 8px 0;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: var(--bg);
+  color: var(--fg);
+  font-size: 0.9rem;
+  cursor: pointer;
+}
+.unsaved-card .unsaved-actions .unsaved-save {
+  background: var(--accent);
+  color: var(--accent-fg);
+  border-color: var(--accent);
+}
+.unsaved-card .unsaved-actions button:hover {
+  filter: brightness(1.05);
+}
+
+/* 尊重 reduce-motion：新增过渡一并降级 */
+@media (prefers-reduced-motion: reduce) {
+  .tab,
+  .copy-toast,
+  .unsaved-card .unsaved-actions button {
     transition: none;
   }
 }

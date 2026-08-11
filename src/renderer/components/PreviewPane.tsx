@@ -1,4 +1,5 @@
 import ReactMarkdown from 'react-markdown'
+import type { ReactNode, Ref } from 'react'
 import { remarkPlugins, rehypePlugins } from '../lib/markdown'
 import { parseFrontmatter } from '../lib/frontmatter'
 import MermaidBlock from './MermaidBlock'
@@ -19,7 +20,12 @@ function extractNodeText(node: unknown): string {
   return ''
 }
 
-export default function PreviewPane() {
+interface Props {
+  /** 预览容器 DOM ref（供 scroll-spy / 大纲联动定位） */
+  containerRef?: Ref<HTMLDivElement>
+}
+
+export default function PreviewPane({ containerRef }: Props) {
   const { content, theme } = useApp()
   const stripped = parseFrontmatter(content).content
 
@@ -40,6 +46,36 @@ export default function PreviewPane() {
           ) : (
             <pre>{children}</pre>
           )}
+        </div>
+      )
+    },
+    // 大段文字：悬浮复制（仅在非空时显示按钮）
+    p(props: any) {
+      const text = extractNodeText(props.children)
+      return (
+        <p>
+          {props.children}
+          <CopyButton text={text} label="复制段落" />
+        </p>
+      )
+    },
+    // 引用块：悬浮复制
+    blockquote(props: any) {
+      const text = extractNodeText(props.children)
+      return (
+        <blockquote>
+          {props.children}
+          <CopyButton text={text} label="复制引用" />
+        </blockquote>
+      )
+    },
+    // 表格：用相对定位容器包裹，右上角悬浮复制
+    table(props: any) {
+      const text = extractNodeText(props.children)
+      return (
+        <div className="copy-host">
+          <CopyButton text={text} label="复制表格" />
+          <table className={props.className}>{props.children}</table>
         </div>
       )
     },
@@ -64,7 +100,10 @@ export default function PreviewPane() {
   }
 
   return (
-    <div className={`preview-pane markdown-body ${theme}`}>
+    <div
+      ref={containerRef}
+      className={`preview-pane markdown-body ${theme}`}
+    >
       <ReactMarkdown
         // 注：remark-footnotes 携带独立 vfile 副本，导致插件链类型与
         // react-markdown 依赖的 unified 版本冲突（已知上游类型问题，运行时正常）。

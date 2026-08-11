@@ -8,6 +8,8 @@ interface CopyableBlockProps {
   children: ReactNode
   /** 额外的 className，会挂在外层容器上 */
   className?: string
+  /** 复制失败时的回调（透传给内部 CopyButton，用于全局轻提示） */
+  onError?: () => void
 }
 
 /**
@@ -18,11 +20,12 @@ interface CopyableBlockProps {
 export default function CopyableBlock({
   text,
   children,
-  className = ''
+  className = '',
+  onError
 }: CopyableBlockProps) {
   return (
     <div className={`copyable-block${className ? ' ' + className : ''}`}>
-      <CopyButton text={text} />
+      <CopyButton text={text} onError={onError} />
       <div className="copyable-block-content">{children}</div>
     </div>
   )

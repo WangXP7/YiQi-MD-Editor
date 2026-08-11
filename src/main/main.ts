@@ -204,6 +204,10 @@ function buildMenu(win: BrowserWindow): void {
           click: () => send('saveAs')
         },
         { type: 'separator' },
+        { label: '关闭标签', accelerator: 'CmdOrCtrl+W', click: () => send('closeTab') },
+        { label: '下一个标签', accelerator: 'CmdOrCtrl+Tab', click: () => send('nextTab') },
+        { label: '上一个标签', accelerator: 'CmdOrCtrl+Shift+Tab', click: () => send('prevTab') },
+        { type: 'separator' },
         { label: '最近打开', submenu: recentSubmenu },
         { type: 'separator' },
         { label: '导出 HTML', click: () => send('exportHtml') },

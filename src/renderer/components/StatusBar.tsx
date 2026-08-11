@@ -2,8 +2,8 @@ import { useApp } from '../AppContext'
 import CopyableBlock from './CopyableBlock'
 
 export default function StatusBar() {
-  const { wordCount, dirty, filePath, fileName, zoom, focusMode, typewriterMode } =
-    useApp()
+  const { wordCount, zoom, focusMode, typewriterMode, activeTab } = useApp()
+  const { filePath, fileName, dirty } = activeTab
   return (
     <footer className="status-bar">
       <span className={dirty ? 'dirty' : 'saved'}>

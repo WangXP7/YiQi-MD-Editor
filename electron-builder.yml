@@ -1,11 +1,15 @@
 appId: com.mdeditor.app
-productName: YiQi@MD-Editor-wb-Hy3
+productName: 墨览 YiQi@MD-Editor-wb-Hy3
+# 最高压缩等级（作用于 portable 7z 与 nsis 安装包内嵌归档）
+compression: maximum
 directories:
   output: release
   buildResources: resources
 files:
   - dist/**/*
   - dist-electron/**/*
+  # 排除依赖自带的 source map（运行时不需要，可显著减小体积）
+  - '!**/*.map'
 extraResources:
   - from: resources/icon.ico
     to: icon.ico
@@ -15,9 +19,13 @@ win:
     - nsis
   sign: ./scripts/do-not-sign.js
   icon: resources/icon.ico
+  # 仅打包中英文语言包，砍掉其余 ~53 个无用 locale（约 37MB 未压缩）
+  electronLanguages:
+    - en-US
+    - zh-CN
 portable:
   artifactName: YiQi@MD-Editor-wb-Hy3-Portable-${version}.${ext}
 nsis:
   artifactName: YiQi@MD-Editor-wb-Hy3-Setup-${version}.${ext}
-  shortcutName: YiQi@MD-Editor-wb-Hy3
+  shortcutName: 墨览 YiQi@MD-Editor-wb-Hy3
   createDesktopShortcut: always

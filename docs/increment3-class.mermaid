@@ -1,0 +1,58 @@
+classDiagram
+    class TocItem {
+        +number level
+        +string text
+        +string id
+        +number line
+    }
+    class DocTab {
+        +string id
+        +string|null filePath
+        +string fileName
+        +string content
+        +boolean dirty
+        +object viewState
+    }
+    class SyncScrollState {
+        +string|null activeId
+        +boolean locked
+        +string lastSource
+    }
+    class AppState {
+        +DocTab[] tabs
+        +string activeTabId
+        +SyncScrollState sync
+        +openFile() void
+        +newFile() void
+        +switchTab(id) void
+        +closeTab(id) void
+        +navigateToc(tocId) void
+    }
+    class AppContext
+    class tocNav {
+        +navigateEditorToLine(view, line)
+        +scrollPreviewToId(container, id)
+        +computeActiveTocId(scrollTop, items)
+    }
+    class CopyButton {
+        +string text
+        +boolean disabled
+        +handleClick() void
+    }
+    class CopyableBlock
+    class TabBar
+    class Sidebar
+    class EditorPane
+    class PreviewPane
+    class UnsavedDialog
+
+    AppContext ..> AppState : provides
+    AppState "1" *-- "0..*" DocTab : holds
+    AppState "1" *-- "1" SyncScrollState
+    tocNav ..> TocItem : uses line/id
+    Sidebar ..> TocItem : renders + highlight
+    EditorPane ..> DocTab : renders active
+    PreviewPane ..> DocTab : renders active
+    TabBar ..> DocTab : renders list
+    CopyButton ..> CopyableBlock : embedded
+    UnsavedDialog ..> DocTab : target tab

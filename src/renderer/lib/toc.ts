@@ -7,21 +7,22 @@ export function extractToc(markdown: string): TocItem[] {
   const lines = markdown.split('\n')
   const items: TocItem[] = []
   let inFence = false
-  for (const line of lines) {
+  lines.forEach((line, idx) => {
     const fence = line.trim().match(/^```+/)
     if (fence) {
       inFence = !inFence
-      continue
+      return
     }
-    if (inFence) continue
+    if (inFence) return
     const m = /^(#{1,6})\s+(.*)$/.exec(line)
     if (m) {
       const level = m[1].length
       const text = m[2].replace(/#+\s*$/, '').trim()
-      if (!text) continue
+      if (!text) return
       const id = slugger.slug(text)
-      items.push({ level, text, id })
+      // line 为 0-based 源码行号，供编辑区光标定位（navigateToc / scroll-spy）
+      items.push({ level, text, id, line: idx })
     }
-  }
+  })
   return items
 }

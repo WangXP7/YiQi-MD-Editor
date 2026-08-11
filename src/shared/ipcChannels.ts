@@ -31,6 +31,10 @@ export type MenuAction =
   | 'toggleFocus'
   | 'toggleTypewriter'
   | 'copyHtml'
+  // 多标签相关静态动作（第三轮新增）
+  | 'closeTab'
+  | 'nextTab'
+  | 'prevTab'
   // 以下为动态前缀动作（渲染层 handleMenuAction 用 startsWith 解析）：
   //   'openRecent:' + encodeURIComponent(path) —— 点击"最近打开"条目
   //   'theme:' + ThemeName                  —— 点击"主题"子菜单项
