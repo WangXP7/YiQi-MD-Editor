@@ -1,6 +1,6 @@
 {
   "name": "yiqi-md-editor-gpt56solxhigh",
-  "version": "1.1.1",
+  "version": "1.1.2",
   "description": "YiQi@MD-Editor-GPT5.6SolxHigh — a polished, offline-first Markdown editor for Windows.",
   "main": "electron/main.cjs",
   "author": "YiQi@MD-Editor-GPT5.6SolxHigh",
@@ -14,7 +14,7 @@
     "preview": "vite preview --host 127.0.0.1",
     "start": "electron ."
   },
-  "dependencies": {
+  "devDependencies": {
     "@codemirror/commands": "6.8.1",
     "@codemirror/lang-markdown": "6.3.3",
     "@codemirror/search": "6.5.10",
@@ -39,9 +39,7 @@
     "markdown-it-sup": "2.0.0",
     "markdown-it-task-lists": "2.1.1",
     "markdown-it-texmath": "1.0.0",
-    "mermaid": "11.6.0"
-  },
-  "devDependencies": {
+    "mermaid": "11.6.0",
     "concurrently": "9.1.2",
     "electron": "35.1.5",
     "electron-builder": "26.0.12",
@@ -50,9 +48,10 @@
   },
   "build": {
     "appId": "com.yiqi.mdeditor.gpt56solxhigh",
-    "productName": "YiQi@MD-Editor-GPT5.6SolxHigh-v1.1.1",
+    "productName": "YiQi@MD-Editor-GPT5.6SolxHigh-v1.1.2",
     "copyright": "Copyright © 2026 YiQi@MD-Editor-GPT5.6SolxHigh",
     "asar": true,
+    "electronLanguages": ["zh-CN", "en-US"],
     "directories": {
       "output": "release",
       "buildResources": "build"
@@ -81,7 +80,7 @@
       "allowToChangeInstallationDirectory": true,
       "createDesktopShortcut": true,
       "createStartMenuShortcut": true,
-      "shortcutName": "YiQi@MD-Editor-GPT5.6SolxHigh-v1.1.1",
+      "shortcutName": "YiQi@MD-Editor-GPT5.6SolxHigh-v1.1.2",
       "installerLanguages": ["zh_CN", "en_US"],
       "language": "2052",
       "perMachine": false

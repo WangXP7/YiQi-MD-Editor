@@ -1,6 +1,6 @@
-# YiQi@MD-Editor-GPT5.6SolxHigh-v1.1.1
+# YiQi@MD-Editor-GPT5.6SolxHigh-v1.1.2
 
-YiQi@MD-Editor-GPT5.6SolxHigh-v1.1.1 是一款面向 Windows 的离线 Markdown 查看与编辑器，提供现代化双栏界面、实时预览和完整的本地文件工作流。
+YiQi@MD-Editor-GPT5.6SolxHigh-v1.1.2 是一款面向 Windows 的离线 Markdown 查看与编辑器，提供现代化双栏界面、实时预览和完整的本地文件工作流。
 
 ## 主要能力
 
@@ -37,8 +37,10 @@ pnpm build
 
 打包产物位于 `release`：
 
-- `YiQi@MD-Editor-GPT5.6SolxHigh-v1.1.1-Setup-x64.exe`：安装版
-- `YiQi@MD-Editor-GPT5.6SolxHigh-v1.1.1-Portable-x64.exe`：免安装便携版
+- `YiQi@MD-Editor-GPT5.6SolxHigh-v1.1.2-Setup-x64.exe`：安装版
+- `YiQi@MD-Editor-GPT5.6SolxHigh-v1.1.2-Portable-x64.exe`：免安装便携版
+
+发布包只包含 Vite 已编译的完整前端资源和应用所需的中英文 Electron 语言资源，避免重复打包仅供构建使用的 `node_modules`，不裁剪 Markdown、图表、公式、代码高亮等运行功能。
 
 应用未附带商业代码签名证书，因此在部分 Windows 设备首次运行时，SmartScreen 可能显示未知发布者提示。
 
