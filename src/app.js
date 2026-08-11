@@ -39,9 +39,21 @@ const api = window.yiqiMd || {
   showItem: async () => {},
   openExternal: (url) => window.open(url, '_blank', 'noopener'),
   resolveAsset: async ({ source }) => source,
-  getAppInfo: async () => ({ version: '1.1.0' }),
+  getAppInfo: async () => ({ version: '1.1.1' }),
   getPathForFile: (file) => file.path,
-  copyText: async (text) => navigator.clipboard.writeText(String(text)),
+  copyText: async (text) => {
+    const value = String(text);
+    if (navigator.clipboard?.writeText) return navigator.clipboard.writeText(value);
+    const input = document.createElement('textarea');
+    input.value = value;
+    input.style.position = 'fixed';
+    input.style.opacity = '0';
+    document.body.appendChild(input);
+    input.select();
+    const copied = document.execCommand('copy');
+    input.remove();
+    if (!copied) throw new Error('当前环境不允许访问剪贴板');
+  },
   minimize: () => {},
   toggleMaximize: () => {},
   close: () => window.close(),
@@ -103,19 +115,47 @@ flowchart LR
 [^note]: 这是一个标准的 Markdown 脚注。
 `;
 
+let documentSequence = 0;
+function createDocument({ filePath = null, name = '未命名.md', content = '', savedContent = content, dirty = false } = {}) {
+  documentSequence += 1;
+  return {
+    id: globalThis.crypto?.randomUUID?.() || `document-${Date.now()}-${documentSequence}`,
+    filePath,
+    name,
+    content,
+    savedContent,
+    dirty,
+    cursor: 0,
+    editorScrollTop: 0,
+    previewScrollTop: 0
+  };
+}
+
+const initialDocument = createDocument({ content: starterDocument, savedContent: starterDocument });
 const state = {
-  filePath: null,
-  name: '未命名.md',
-  dirty: false,
-  savedContent: starterDocument,
+  documents: [initialDocument],
+  activeDocumentId: initialDocument.id,
   renderTimer: null,
+  renderRevision: 0,
   suppressChanges: false,
   viewMode: localStorage.getItem('yiqi-md:view') || 'split',
   theme: localStorage.getItem('yiqi-md:theme') || 'dark',
   zoom: Number(localStorage.getItem('yiqi-md:zoom') || 100),
   recent: loadRecent(),
   dragDepth: 0,
-  isResizing: false
+  isResizing: false,
+  outlineJumping: false,
+  get activeDocument() {
+    return this.documents.find((documentItem) => documentItem.id === this.activeDocumentId) || this.documents[0];
+  },
+  get filePath() { return this.activeDocument?.filePath || null; },
+  set filePath(value) { if (this.activeDocument) this.activeDocument.filePath = value; },
+  get name() { return this.activeDocument?.name || '未命名.md'; },
+  set name(value) { if (this.activeDocument) this.activeDocument.name = value; },
+  get dirty() { return Boolean(this.activeDocument?.dirty); },
+  set dirty(value) { if (this.activeDocument) this.activeDocument.dirty = Boolean(value); },
+  get savedContent() { return this.activeDocument?.savedContent || ''; },
+  set savedContent(value) { if (this.activeDocument) this.activeDocument.savedContent = value; }
 };
 
 document.documentElement.dataset.theme = state.theme;
@@ -137,6 +177,7 @@ const editor = new EditorView({
         updateCursorStatus(update.state);
         if (!update.docChanged || state.suppressChanges) return;
         const content = update.state.doc.toString();
+        state.activeDocument.content = content;
         setDirty(content !== state.savedContent);
         updateStats(content);
         scheduleRender(content);
@@ -234,6 +275,14 @@ function createMarkdownEngine() {
     return originalLinkOpen(tokens, index, options, env, self);
   };
 
+  engine.core.ruler.push('source_line_attrs', (parseState) => {
+    parseState.tokens.forEach((token) => {
+      if (token.type === 'heading_open' && token.map) {
+        token.attrSet('data-source-line', String(token.map[0]));
+      }
+    });
+  });
+
   return engine;
 }
 
@@ -260,6 +309,7 @@ function bindInterface() {
   });
 
   $('#new-file').addEventListener('click', newDocument);
+  $('#new-tab-button').addEventListener('click', newDocument);
   $('#open-file').addEventListener('click', openDocument);
   $('#toggle-sidebar').addEventListener('click', () => $('#sidebar').classList.toggle('collapsed'));
   $('#theme-toggle').addEventListener('click', toggleTheme);
@@ -301,6 +351,9 @@ function handleKeyboard(event) {
   } else if (ctrl && event.key.toLowerCase() === 'n') {
     event.preventDefault();
     newDocument();
+  } else if (ctrl && event.key.toLowerCase() === 'w') {
+    event.preventDefault();
+    closeDocument(state.activeDocumentId);
   } else if (ctrl && event.key.toLowerCase() === 'b') {
     event.preventDefault();
     applyFormat('bold');
@@ -325,24 +378,26 @@ async function maybeContinue() {
 }
 
 async function newDocument() {
-  if (!(await maybeContinue())) return;
-  loadDocument({ filePath: null, name: '未命名.md', content: '' });
+  const documentItem = createDocument();
+  state.documents.push(documentItem);
+  activateDocument(documentItem.id);
   editor.focus();
-  toast('已创建空白文档');
+  toast('已新建文档标签');
 }
 
 async function openDocument() {
-  if (!(await maybeContinue())) return;
   try {
     const result = await api.openFile();
-    if (!result?.canceled) loadDocument(result);
+    if (result?.canceled) return;
+    const files = Array.isArray(result.files) ? result.files : [result];
+    files.forEach((file) => loadDocument(file));
   } catch (error) {
     toast(`打开失败：${error.message}`, 'error');
   }
 }
 
 async function openPath(filePath) {
-  if (!filePath || !(await maybeContinue())) return;
+  if (!filePath) return;
   try {
     const result = await api.readFile(filePath);
     if (result?.error) throw new Error(result.error);
@@ -353,26 +408,80 @@ async function openPath(filePath) {
 }
 
 function loadDocument({ filePath, name, content }) {
+  const existingDocument = filePath
+    ? state.documents.find((documentItem) => documentItem.filePath?.toLowerCase() === filePath.toLowerCase())
+    : null;
+  if (existingDocument) {
+    activateDocument(existingDocument.id);
+    toast(`${existingDocument.name} 已在标签中打开`);
+    return;
+  }
+
+  const currentDocument = state.activeDocument;
+  const canReuseCurrent = state.documents.length === 1
+    && !currentDocument.filePath
+    && !currentDocument.dirty
+    && (currentDocument.content === starterDocument || currentDocument.content === '');
+  const documentItem = canReuseCurrent
+    ? currentDocument
+    : createDocument();
+
+  if (!canReuseCurrent) state.documents.push(documentItem);
+  documentItem.filePath = filePath || null;
+  documentItem.name = name || (filePath ? filePath.split(/[\\/]/).pop() : '未命名.md');
+  documentItem.content = content;
+  documentItem.savedContent = content;
+  documentItem.dirty = false;
+  documentItem.cursor = 0;
+  documentItem.editorScrollTop = 0;
+  documentItem.previewScrollTop = 0;
+  activateDocument(documentItem.id, { force: true, skipCapture: canReuseCurrent });
+  if (documentItem.filePath) addRecent(documentItem.filePath, documentItem.name);
+  toast(`已打开 ${documentItem.name}`);
+}
+
+function captureActiveDocumentState() {
+  const documentItem = state.activeDocument;
+  if (!documentItem || !editor) return;
+  documentItem.content = editor.state.doc.toString();
+  documentItem.cursor = editor.state.selection.main.head;
+  documentItem.editorScrollTop = $('.cm-scroller', editor.dom)?.scrollTop || 0;
+  documentItem.previewScrollTop = $('#preview-scroll')?.scrollTop || 0;
+}
+
+function activateDocument(documentId, { force = false, skipCapture = false } = {}) {
+  const documentItem = state.documents.find((candidate) => candidate.id === documentId);
+  if (!documentItem) return;
+  if (!force && state.activeDocumentId === documentId) return;
+  if (!skipCapture && state.activeDocumentId !== documentId) captureActiveDocumentState();
+
+  state.activeDocumentId = documentId;
   state.suppressChanges = true;
+  const cursor = Math.min(documentItem.cursor || 0, documentItem.content.length);
   editor.dispatch({
-    changes: { from: 0, to: editor.state.doc.length, insert: content },
-    selection: { anchor: 0 },
-    scrollIntoView: true
+    changes: { from: 0, to: editor.state.doc.length, insert: documentItem.content },
+    selection: { anchor: cursor }
   });
   state.suppressChanges = false;
-  state.filePath = filePath || null;
-  state.name = name || (filePath ? filePath.split(/[\\/]/).pop() : '未命名.md');
-  state.savedContent = content;
-  setDirty(false);
   updateDocumentLabels();
-  updateStats(content);
-  renderMarkdown(content);
-  if (state.filePath) addRecent(state.filePath, state.name);
-  toast(`已打开 ${state.name}`);
+  updateStats(documentItem.content);
+  window.clearTimeout(state.renderTimer);
+  state.renderTimer = null;
+  renderMarkdown(documentItem.content, documentItem.filePath);
+  $('#save-status').textContent = documentItem.dirty ? '尚未保存' : '已就绪';
+
+  requestAnimationFrame(() => {
+    const cmScroll = $('.cm-scroller', editor.dom);
+    if (cmScroll) cmScroll.scrollTop = documentItem.editorScrollTop || 0;
+    $('#preview-scroll').scrollTop = documentItem.previewScrollTop || 0;
+    editor.requestMeasure();
+    $(`.document-tab[data-document-id="${documentId}"]`)?.scrollIntoView({ block: 'nearest', inline: 'nearest' });
+  });
 }
 
 async function saveDocument(forceSaveAs = false) {
   const content = editor.state.doc.toString();
+  state.activeDocument.content = content;
   try {
     let result;
     if (state.filePath && !forceSaveAs) {
@@ -398,29 +507,86 @@ async function saveDocument(forceSaveAs = false) {
 }
 
 async function requestClose() {
-  if (!(await maybeContinue())) return;
+  captureActiveDocumentState();
+  for (const documentItem of [...state.documents]) {
+    if (!documentItem.dirty) continue;
+    activateDocument(documentItem.id);
+    if (!(await maybeContinue())) return;
+  }
   api.close();
+}
+
+async function closeDocument(documentId) {
+  const documentIndex = state.documents.findIndex((documentItem) => documentItem.id === documentId);
+  if (documentIndex < 0) return;
+  const documentItem = state.documents[documentIndex];
+
+  if (documentItem.dirty) {
+    activateDocument(documentId);
+    if (!(await maybeContinue())) return;
+  }
+
+  const wasActive = state.activeDocumentId === documentId;
+  state.documents.splice(documentIndex, 1);
+  if (!state.documents.length) state.documents.push(createDocument());
+
+  if (wasActive) {
+    const nextDocument = state.documents[Math.min(documentIndex, state.documents.length - 1)];
+    activateDocument(nextDocument.id, { force: true, skipCapture: true });
+  } else {
+    renderDocumentTabs();
+  }
 }
 
 function setDirty(value) {
   state.dirty = value;
-  $('#dirty-dot').classList.toggle('visible', value);
   $('#save-status').textContent = value ? '尚未保存' : '已就绪';
   updateDocumentLabels();
 }
 
 function updateDocumentLabels() {
-  $('#tab-name').textContent = state.name;
+  renderDocumentTabs();
   $('#window-title').textContent = `${state.dirty ? '● ' : ''}${state.name}`;
-  document.title = `${state.dirty ? '● ' : ''}${state.name} — YiQi@MD-Editor-GPT5.6SolxHigh-v1.1.0`;
+  document.title = `${state.dirty ? '● ' : ''}${state.name} — YiQi@MD-Editor-GPT5.6SolxHigh-v1.1.1`;
+}
+
+function renderDocumentTabs() {
+  const tabs = $('#document-tabs');
+  if (!tabs) return;
+  tabs.innerHTML = '';
+
+  state.documents.forEach((documentItem) => {
+    const tab = document.createElement('div');
+    tab.className = `document-tab${documentItem.id === state.activeDocumentId ? ' active' : ''}`;
+    tab.dataset.documentId = documentItem.id;
+    tab.setAttribute('role', 'tab');
+    tab.setAttribute('aria-selected', String(documentItem.id === state.activeDocumentId));
+    tab.title = documentItem.filePath || documentItem.name;
+    tab.innerHTML = `
+      <i data-lucide="file-text"></i>
+      <span class="document-tab-name">${escapeHtml(documentItem.name)}</span>
+      ${documentItem.dirty ? '<span class="dirty-dot" title="未保存"></span>' : ''}
+      <button class="tab-close" title="关闭标签 (Ctrl+W)" aria-label="关闭 ${escapeHtml(documentItem.name)}"><i data-lucide="x"></i></button>`;
+    tab.addEventListener('click', () => activateDocument(documentItem.id));
+    $('.tab-close', tab).addEventListener('click', (event) => {
+      event.stopPropagation();
+      closeDocument(documentItem.id);
+    });
+    tabs.appendChild(tab);
+  });
+  createIcons({ icons });
 }
 
 function scheduleRender(content) {
   window.clearTimeout(state.renderTimer);
-  state.renderTimer = window.setTimeout(() => renderMarkdown(content), 160);
+  const documentId = state.activeDocumentId;
+  state.renderTimer = window.setTimeout(() => {
+    if (state.activeDocumentId === documentId) renderMarkdown(content, state.filePath);
+  }, 160);
 }
 
-async function renderMarkdown(content) {
+async function renderMarkdown(content, documentPath = state.filePath) {
+  const revision = ++state.renderRevision;
   const preview = $('#preview');
   let rendered;
   try {
@@ -430,16 +596,18 @@ async function renderMarkdown(content) {
   }
   preview.innerHTML = DOMPurify.sanitize(rendered, {
     USE_PROFILES: { html: true, svg: true, svgFilters: true, mathMl: true },
-    ADD_ATTR: ['target', 'rel', 'data-label', 'checked', 'disabled', 'aria-hidden']
+    ADD_ATTR: ['target', 'rel', 'data-label', 'data-source-line', 'checked', 'disabled', 'aria-hidden']
   });
 
-  await resolveLocalImages();
+  await resolveLocalImages(documentPath);
+  if (revision !== state.renderRevision) return;
   buildOutline();
   try {
     await mermaid.run({ nodes: $$('.mermaid', preview), suppressErrors: true });
   } catch (error) {
     console.warn('Mermaid render skipped:', error.message);
   }
+  if (revision !== state.renderRevision) return;
   decorateCopyButtons();
 }
 
@@ -492,13 +660,13 @@ function getBlockCopyText(block) {
   return block.textContent.trim();
 }
 
-async function resolveLocalImages() {
-  if (!state.filePath) return;
+async function resolveLocalImages(documentPath) {
+  if (!documentPath) return;
   const images = $$('img', $('#preview'));
   await Promise.all(images.map(async (image) => {
     const source = image.getAttribute('src');
     if (!source || /^(https?:|data:|file:|#)/i.test(source)) return;
-    image.src = await api.resolveAsset({ documentPath: state.filePath, source });
+    image.src = await api.resolveAsset({ documentPath, source });
   }));
 }
 
@@ -518,8 +686,21 @@ function buildOutline() {
     button.dataset.level = heading.tagName.slice(1);
     button.innerHTML = `<span>${escapeHtml(heading.textContent.replace(/#$/, '').trim())}</span>`;
     button.addEventListener('click', () => {
-      if (state.viewMode === 'editor') applyViewMode('split');
+      if (state.viewMode !== 'split') applyViewMode('split');
+
+      state.outlineJumping = true;
+      const sourceLine = Number.parseInt(heading.dataset.sourceLine || '', 10);
+      if (Number.isFinite(sourceLine)) {
+        const lineNumber = Math.max(1, Math.min(editor.state.doc.lines, sourceLine + 1));
+        const position = editor.state.doc.line(lineNumber).from;
+        editor.dispatch({
+          selection: { anchor: position },
+          effects: EditorView.scrollIntoView(position, { y: 'start', yMargin: 48 })
+        });
+      }
+
       heading.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      window.setTimeout(() => { state.outlineJumping = false; }, 500);
     });
     list.appendChild(button);
   });
@@ -689,14 +870,17 @@ function bindDragAndDrop() {
     event.preventDefault();
     state.dragDepth = 0;
     $('#drop-overlay').classList.remove('visible');
-    const file = event.dataTransfer?.files?.[0];
-    if (!file) return;
-    if (!/\.(md|markdown|mdown|mkd|txt)$/i.test(file.name)) {
+    const files = [...(event.dataTransfer?.files || [])];
+    if (!files.length) return;
+    const markdownFiles = files.filter((file) => /\.(md|markdown|mdown|mkd|txt)$/i.test(file.name));
+    if (!markdownFiles.length) {
       toast('请选择 Markdown 或文本文件', 'error');
       return;
     }
-    const filePath = api.getPathForFile(file);
-    if (filePath) await openPath(filePath);
+    for (const file of markdownFiles) {
+      const filePath = api.getPathForFile(file);
+      if (filePath) await openPath(filePath);
+    }
   });
 }
 
@@ -742,7 +926,7 @@ function bindScrollSync() {
   const previewScroll = $('#preview-scroll');
   const cmScroll = $('.cm-scroller', editor.dom);
   cmScroll.addEventListener('scroll', () => {
-    if (syncing || state.viewMode !== 'split') return;
+    if (syncing || state.outlineJumping || state.viewMode !== 'split') return;
     const sourceMax = cmScroll.scrollHeight - cmScroll.clientHeight;
     const targetMax = previewScroll.scrollHeight - previewScroll.clientHeight;
     if (sourceMax <= 0 || targetMax <= 0) return;

@@ -23,7 +23,7 @@
   --shadow: 0 20px 55px rgba(0, 0, 0, 0.34);
   --sidebar-width: 250px;
   --titlebar-height: 38px;
-  --statusbar-height: 29px;
+  --statusbar-height: 34px;
   --preview-zoom: 1;
   font-family: "Segoe UI Variable", "Segoe UI", "Microsoft YaHei UI", sans-serif;
   font-synthesis: none;
@@ -77,7 +77,7 @@ button:focus-visible { outline: 2px solid var(--purple); outline-offset: 2px; }
 .sidebar { width: var(--sidebar-width); flex: 0 0 var(--sidebar-width); background: var(--panel); backdrop-filter: blur(22px); border-right: 1px solid var(--border); padding: 19px 14px 13px; display: flex; flex-direction: column; transition: margin .24s ease, opacity .2s ease; z-index: 10; }
 .sidebar.collapsed { margin-left: calc(var(--sidebar-width) * -1); opacity: 0; }
 .brand-block { height: 52px; display: flex; align-items: center; gap: 12px; padding: 0 7px; }
-.brand-block h1 { margin: 0 0 1px; font-size: 17px; letter-spacing: -.02em; }
+.brand-block h1 { margin: 0 0 1px; font-size: 16px; letter-spacing: -.02em; white-space: nowrap; }
 .brand-block p { margin: 0; font-size: 7.5px; letter-spacing: .1em; color: var(--purple-bright); font-weight: 700; white-space: nowrap; }
 .brand-mark { width: 39px; height: 39px; border-radius: 12px; display: grid; place-items: center; position: relative; background: linear-gradient(145deg, #7556ef, #4c34b3); color: white; box-shadow: 0 7px 22px rgba(104, 75, 224, .36), inset 0 1px rgba(255,255,255,.28); font-weight: 800; font-size: 18px; overflow: visible; }
 .brand-mark::before { content: ""; position: absolute; inset: 1px; border-radius: 11px; background: linear-gradient(135deg, rgba(255,255,255,.2), transparent 55%); }
@@ -132,14 +132,25 @@ kbd { border: 0; background: rgba(255,255,255,.07); border-radius: 4px; color: c
 
 .main-area { flex: 1; min-width: 0; display: flex; flex-direction: column; background: rgba(5, 7, 13, .36); }
 [data-theme="light"] .main-area { background: rgba(230,234,244,.55); }
-.document-bar { height: 45px; flex: 0 0 45px; display: flex; align-items: center; justify-content: space-between; background: var(--panel); border-bottom: 1px solid var(--border); }
-.document-tab { align-self: stretch; min-width: 190px; max-width: 350px; padding: 0 16px; display: flex; align-items: center; gap: 8px; color: var(--text-soft); font-size: 11px; position: relative; border-right: 1px solid var(--border); }
-.document-tab::after { content: ""; position: absolute; height: 2px; left: 0; right: 0; bottom: -1px; background: linear-gradient(90deg, var(--purple), var(--cyan)); }
-.document-tab svg { width: 14px; color: var(--purple-bright); }
-.document-tab span:not(.dirty-dot) { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.dirty-dot { display: none; width: 6px; height: 6px; border-radius: 50%; background: var(--orange); flex: 0 0 auto; }
-.dirty-dot.visible { display: block; }
-.document-actions { display: flex; align-items: center; gap: 7px; padding: 0 10px; }
+.document-bar { height: 45px; flex: 0 0 45px; display: flex; align-items: center; background: var(--panel); border-bottom: 1px solid var(--border); }
+.document-tab-strip { flex: 1; min-width: 0; align-self: stretch; display: flex; align-items: center; overflow: hidden; }
+.document-tabs { min-width: 0; align-self: stretch; display: flex; align-items: stretch; overflow-x: auto; overflow-y: hidden; scrollbar-width: none; }
+.document-tabs::-webkit-scrollbar { display: none; }
+.document-tab { flex: 0 0 184px; min-width: 130px; max-width: 230px; padding: 0 8px 0 13px; display: flex; align-items: center; gap: 7px; color: var(--muted); font-size: 11px; position: relative; border-right: 1px solid var(--border); cursor: pointer; transition: background .15s ease, color .15s ease; }
+.document-tab:hover { color: var(--text-soft); background: var(--hover); }
+.document-tab.active { color: var(--text); background: rgba(124,92,255,.055); }
+.document-tab.active::after { content: ""; position: absolute; height: 2px; left: 0; right: 0; bottom: 0; background: linear-gradient(90deg, var(--purple), var(--cyan)); }
+.document-tab > svg { width: 14px; flex: 0 0 auto; color: var(--purple-bright); }
+.document-tab-name { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.dirty-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--orange); flex: 0 0 auto; box-shadow: 0 0 6px rgba(255,180,84,.35); }
+.tab-close { width: 21px; height: 21px; flex: 0 0 auto; border: 0; border-radius: 5px; background: transparent; color: var(--muted); display: grid; place-items: center; cursor: pointer; opacity: 0; }
+.document-tab:hover .tab-close, .document-tab.active .tab-close { opacity: 1; }
+.tab-close:hover { color: var(--text); background: var(--hover); }
+.tab-close svg { width: 12px; height: 12px; }
+.new-tab-button { width: 31px; height: 31px; flex: 0 0 auto; margin: 0 6px; border: 0; border-radius: 7px; background: transparent; color: var(--muted); display: grid; place-items: center; cursor: pointer; }
+.new-tab-button:hover { color: var(--text); background: var(--hover); }
+.new-tab-button svg { width: 15px; }
+.document-actions { flex: 0 0 auto; display: flex; align-items: center; gap: 7px; padding: 0 10px; border-left: 1px solid var(--border); }
 .ghost-button, .view-switch button { width: 31px; height: 29px; display: grid; place-items: center; border: 1px solid transparent; background: transparent; color: var(--muted); border-radius: 7px; cursor: pointer; }
 .ghost-button:hover, .view-switch button:hover { background: var(--hover); color: var(--text); }
 .ghost-button svg, .view-switch svg { width: 15px; }
@@ -278,7 +289,7 @@ kbd { border: 0; background: rgba(255,255,255,.07); border-radius: 4px; color: c
 .hljs-variable, .hljs-template-variable { color: #f07178; }
 .hljs-meta { color: #ffcb6b; }
 
-.statusbar { height: var(--statusbar-height); flex: 0 0 var(--statusbar-height); display: flex; align-items: center; justify-content: space-between; padding: 0 10px; background: var(--panel); border-top: 1px solid var(--border); color: var(--muted); font-size: 10.5px; }
+.statusbar { height: var(--statusbar-height); flex: 0 0 var(--statusbar-height); display: flex; align-items: center; justify-content: space-between; padding: 0 12px; background: var(--panel); border-top: 1px solid var(--border); color: var(--muted); font-size: 12px; }
 .status-left, .status-right { display: flex; align-items: center; gap: 13px; }
 .statusbar button { border: 0; background: transparent; color: inherit; padding: 0; cursor: pointer; }
 .statusbar button:hover { color: var(--text); }

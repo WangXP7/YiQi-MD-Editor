@@ -1,4 +1,4 @@
-const { contextBridge, ipcRenderer, webUtils, clipboard } = require('electron');
+const { contextBridge, ipcRenderer, webUtils } = require('electron');
 
 contextBridge.exposeInMainWorld('yiqiMd', {
   openFile: () => ipcRenderer.invoke('dialog:open-file'),
@@ -13,7 +13,7 @@ contextBridge.exposeInMainWorld('yiqiMd', {
   resolveAsset: (payload) => ipcRenderer.invoke('path:resolve-asset', payload),
   getAppInfo: () => ipcRenderer.invoke('app:info'),
   getPathForFile: (file) => webUtils.getPathForFile(file),
-  copyText: (text) => clipboard.writeText(String(text)),
+  copyText: (text) => ipcRenderer.invoke('clipboard:write-text', String(text)),
   minimize: () => ipcRenderer.send('window:minimize'),
   toggleMaximize: () => ipcRenderer.send('window:toggle-maximize'),
   close: () => ipcRenderer.send('window:force-close'),

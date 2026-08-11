@@ -1,4 +1,4 @@
-const { app, BrowserWindow, dialog, ipcMain, shell, nativeTheme } = require('electron');
+const { app, BrowserWindow, dialog, ipcMain, shell, nativeTheme, clipboard } = require('electron');
 const path = require('path');
 const fs = require('fs');
 const { pathToFileURL } = require('url');
@@ -9,7 +9,7 @@ let pendingFile = null;
 let forceClose = false;
 let appIsQuitting = false;
 
-app.setName('YiQi@MD-Editor-GPT5.6SolxHigh-v1.1.0');
+app.setName('YiQi@MD-Editor-GPT5.6SolxHigh-v1.1.1');
 app.setAppUserModelId('com.yiqi.mdeditor.gpt56solxhigh');
 
 function isMarkdownFile(filePath) {
@@ -122,7 +122,7 @@ function safeFileResult(filePath, content) {
 ipcMain.handle('dialog:open-file', async () => {
   const result = await dialog.showOpenDialog(mainWindow, {
     title: '打开 Markdown 文档',
-    properties: ['openFile'],
+    properties: ['openFile', 'multiSelections'],
     filters: [
       { name: 'Markdown 文档', extensions: ['md', 'markdown', 'mdown', 'mkd'] },
       { name: '文本文件', extensions: ['txt'] },
@@ -130,9 +130,11 @@ ipcMain.handle('dialog:open-file', async () => {
     ]
   });
   if (result.canceled || !result.filePaths[0]) return { canceled: true };
-  const filePath = result.filePaths[0];
-  const content = await fs.promises.readFile(filePath, 'utf8');
-  return safeFileResult(filePath, content);
+  const files = await Promise.all(result.filePaths.map(async (filePath) => {
+    const content = await fs.promises.readFile(filePath, 'utf8');
+    return safeFileResult(filePath, content);
+  }));
+  return { canceled: false, files };
 });
 
 ipcMain.handle('file:read', async (_event, filePath) => {
@@ -218,6 +220,11 @@ ipcMain.handle('shell:show-item', (_event, filePath) => shell.showItemInFolder(f
 ipcMain.handle('shell:open-external', (_event, url) => {
   if (/^https?:\/\//i.test(url)) return shell.openExternal(url);
   return false;
+});
+
+ipcMain.handle('clipboard:write-text', (_event, text) => {
+  clipboard.writeText(String(text ?? ''));
+  return true;
 });
 
 ipcMain.on('window:minimize', () => mainWindow?.minimize());
