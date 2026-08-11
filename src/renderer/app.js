@@ -1,11 +1,13 @@
 /**
- * YiQi@MD-Editor-wb-DSv4-Flash - 应用入口
+ * 墨览 YiQi@MD-Editor-wb-DSv4-Flash - 应用入口
  *
  * 组装编辑器（CodeMirror 6）、多标签（TabManager）、预览（markdown-it）、
- * 文件操作、查找/替换面板，并绑定菜单动作、工具栏、拖拽、主题与会话恢复。
+ * 文件操作、查找/替换面板、左侧大纲栏（OutlineManager）、选区悬浮复制按钮
+ * （CopyButtonManager），并绑定菜单动作、工具栏、拖拽、主题与会话恢复。
  *
  * 多标签架构：单 CodeMirror 实例 + 多 Tab 状态（TabManager 负责切换时
  * setDoc + 滚动/光标恢复），FileOps 共享单例并通过 setActiveTab 指向当前标签。
+ * 版本号由主进程 IPC 下发（app:get-info），避免渲染层硬编码重复。
  */
 
 import { createEditor } from './editor.js';
@@ -15,21 +17,29 @@ import {
   setPreviewTheme,
   syncScroll,
   getExportPayload,
+  getHeadingElements,
+  getPreviewScrollTop,
+  scrollPreviewToHeading,
+  onPreviewScroll,
   showHelp
 } from './preview.js';
 import { FileOps } from './fileops.js';
 import { TabManager } from './tabbar.js';
 import { FindPanel } from './find.js';
-import { countStats, isMarkdownFile, debounce, throttle } from './utils.js';
+import { OutlineManager } from './outline.js';
+import { CopyButtonManager } from './copybutton.js';
+import { countStats, isMarkdownFile, debounce, throttle, encodingLabel } from './utils.js';
 
-/** 应用显示名（产品名 + 版本号），用于窗口标题拼接 */
-const APP_TITLE = 'YiQi@MD-Editor-wb-DSv4-Flash 1.0.0';
+/** 应用显示名（产品名 + 版本号），默认值在 IPC 返回后由主进程版本覆盖 */
+let APP_TITLE = '墨览 YiQi@MD-Editor-wb-DSv4-Flash 1.1.0';
 
 // 模块级实例（供各处理函数共享）
 let editor = null;
 let fileOps = null;
 let tabManager = null;
 let findPanel = null;
+let outline = null;
+let copyButton = null;
 
 /**
  * 应用启动。
@@ -53,14 +63,22 @@ function init() {
     }
   }, 300);
   const syncScrollThrottled = throttle((view) => syncScroll(view), 50);
+  const outlineScrollThrottled = throttle((view) => outline.onEditorScroll(view), 80);
+  const rebuildOutlineDebounced = debounce((text) => outline.rebuild(text), 250);
 
   editor = createEditor({
     container: editorContainer,
     onDocChange: (text) => {
       tabManager.onDocChanged(text);
+      rebuildOutlineDebounced(text);
     },
     onCursorChange: (state) => updateCursor(state),
-    onScroll: (view) => syncScrollThrottled(view),
+    onSelectionChange: (state) => copyButton.update(state),
+    onScroll: (view) => {
+      syncScrollThrottled(view);
+      outlineScrollThrottled(view);
+      copyButton.hide();
+    },
     onRequestFind: () => findPanel.open('find'),
     onRequestReplace: () => findPanel.open('replace')
   });
@@ -80,7 +98,11 @@ function init() {
     renderPreviewNow: (text) => renderPreview(text),
     updateStats,
     updateMeta,
-    showToast
+    showToast,
+    onSwitch: (tab) => {
+      outline.rebuild(tab.content);
+      copyButton.hide();
+    }
   });
 
   // ---- 查找面板 ----
@@ -102,6 +124,27 @@ function init() {
   initPreview(previewFrame);
   renderPreview(editor.getDoc());
 
+  // ---- 左侧大纲栏 ----
+  outline = new OutlineManager({
+    sidebar: document.getElementById('outline-sidebar'),
+    list: document.getElementById('outline-list'),
+    collapseBtn: document.getElementById('outline-collapse'),
+    divider: document.getElementById('outline-divider'),
+    toggleBtn: document.getElementById('btn-outline'),
+    editor,
+    preview: { getHeadingElements, getPreviewScrollTop, scrollPreviewToHeading, onPreviewScroll },
+    getActiveText: () => {
+      const tab = tabManager.getActiveTab();
+      return tab ? tab.content : editor.getDoc();
+    },
+    showToast
+  });
+  outline.init();
+
+  // ---- 选区悬浮复制按钮 ----
+  copyButton = new CopyButtonManager({ editor, showToast });
+  copyButton.init();
+
   // ---- 工具栏 ----
   document.getElementById('btn-new').addEventListener('click', () => tabManager.newTab());
   document.getElementById('btn-open').addEventListener('click', () => tabManager.openDialog());
@@ -113,6 +156,9 @@ function init() {
   document.getElementById('btn-theme').addEventListener('click', toggleTheme);
   document.getElementById('btn-find').addEventListener('click', () => findPanel.open('find'));
 
+  // ---- 多标签快捷键 ----
+  initTabShortcuts();
+
   // ---- 其余初始化 ----
   initDivider();
   initDragDrop();
@@ -120,6 +166,37 @@ function init() {
   initMenuActions();
   restoreSession();
   updateStats(editor.getDoc());
+
+  // 版本号走 IPC 下发（覆盖默认 APP_TITLE）
+  syncAppTitleFromMain();
+}
+
+// ===========================================================================
+// 版本号 IPC 下发
+// ===========================================================================
+
+/**
+ * 从主进程获取应用标题（产品名 + 版本号），覆盖渲染层默认值。
+ */
+async function syncAppTitleFromMain() {
+  if (!window.mdAPI || typeof window.mdAPI.getAppInfo !== 'function') return;
+  try {
+    const info = await window.mdAPI.getAppInfo();
+    if (info && info.title) {
+      APP_TITLE = info.title;
+      const tab = tabManager.getActiveTab();
+      if (tab) {
+        updateMeta({
+          name: tab.name,
+          encodingLabel: encodingLabel(tab.encoding),
+          dirty: tab.dirty,
+          path: tab.path
+        });
+      }
+    }
+  } catch (err) {
+    console.error('[app] 获取主进程应用标题失败:', err);
+  }
 }
 
 // ===========================================================================
@@ -324,6 +401,9 @@ function initMenuActions() {
       case 'replace':
         findPanel.open('replace');
         break;
+      case 'toggle-outline':
+        outline.toggle();
+        break;
       case 'view-editor':
         setView('editor');
         break;
@@ -351,6 +431,38 @@ function initMenuActions() {
         break;
       default:
         break;
+    }
+  });
+}
+
+// ===========================================================================
+// 多标签快捷键（Ctrl+Tab / Ctrl+Shift+Tab / Ctrl+W）
+// ===========================================================================
+
+/**
+ * 绑定多标签键盘快捷键：
+ *  - Ctrl+Tab：下一个标签；Ctrl+Shift+Tab：上一个标签
+ *  - Ctrl+W：关闭当前标签（Ctrl+W 不用于关闭窗口，避免与关闭确认冲突）
+ */
+function initTabShortcuts() {
+  window.addEventListener('keydown', (e) => {
+    const ctrl = e.ctrlKey || e.metaKey;
+    if (!ctrl) return;
+    const key = e.key.toLowerCase();
+    if (key === 'tab') {
+      e.preventDefault();
+      if (e.shiftKey) {
+        tabManager.prevTab();
+      } else {
+        tabManager.nextTab();
+      }
+    } else if (key === 'w') {
+      // 查找/替换输入框内按 Ctrl+W 不应关闭标签
+      const tag = (e.target && e.target.tagName) || '';
+      if (tag === 'INPUT' || tag === 'TEXTAREA') return;
+      e.preventDefault();
+      const active = tabManager.getActiveTab();
+      if (active) tabManager.closeTab(active.id);
     }
   });
 }

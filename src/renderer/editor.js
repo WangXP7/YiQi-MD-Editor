@@ -138,6 +138,7 @@ const editorTheme = EditorView.theme(
  * @param {string} [options.initialDoc] 初始文档内容
  * @param {(text: string) => void} [options.onDocChange] 文档变化回调
  * @param {(state: EditorState) => void} [options.onCursorChange] 光标变化回调
+ * @param {(state: EditorState) => void} [options.onSelectionChange] 选区变化回调（悬浮复制按钮用）
  * @param {() => void} [options.onScroll] 滚动回调（用于预览联动）
  * @param {() => void} [options.onRequestFind] 请求打开查找面板
  * @param {() => void} [options.onRequestReplace] 请求打开替换面板
@@ -149,6 +150,7 @@ export function createEditor(options) {
     initialDoc = '',
     onDocChange = () => {},
     onCursorChange = () => {},
+    onSelectionChange = () => {},
     onScroll = () => {},
     onRequestFind = () => {},
     onRequestReplace = () => {}
@@ -160,6 +162,7 @@ export function createEditor(options) {
     }
     if (update.selectionSet || update.docChanged) {
       onCursorChange(update.state);
+      onSelectionChange(update.state);
     }
   });
 

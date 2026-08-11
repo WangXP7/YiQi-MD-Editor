@@ -33,6 +33,7 @@ let lastText = '';
 let headingsIndex = [];
 let headingElements = [];
 let pendingRender = false;
+let previewScrollCallback = null;
 const mermaidCache = new Map();
 let mermaidChain = Promise.resolve();
 
@@ -556,6 +557,13 @@ export function initPreview(frame) {
   iframe = frame;
   iframe.addEventListener('load', () => {
     previewDoc = iframe.contentDocument;
+    // 预览区滚动 → 大纲当前章节高亮（回调由 OutlineManager 注册）
+    const scrollEl = previewDoc.scrollingElement || previewDoc.documentElement;
+    if (scrollEl) {
+      scrollEl.addEventListener('scroll', () => {
+        if (previewScrollCallback) previewScrollCallback();
+      });
+    }
     // 拦截外部链接：交给主进程用系统浏览器打开；锚点链接内部滚动
     previewDoc.addEventListener('click', (e) => {
       const target = e.target;
@@ -592,7 +600,14 @@ function ensureMermaid() {
 }
 
 /**
- * 处理文档中的 Mermaid 块：替换为 div.mermaid 并调用 mermaid.run 渲染。
+ * 处理文档中的 Mermaid 块：渲染 SVG 并注入预览 iframe。
+ *
+ * 修复说明：mermaid.run({nodes}) 内部通过主文档 document.getElementById
+ * 定位渲染容器，若直接把 iframe 文档内的节点传入，会因跨文档查找失败而报错
+ * （QA 已知缺陷）。改为：在主文档（渲染进程上下文）创建隐藏渲染节点 →
+ * mermaid.run 渲染出 SVG → 将 SVG 节点移入预览 iframe（DOM 节点跨文档
+ * 插入会被自动 adopt，样式继承 iframe 内 markdownCss）。
+ *
  * @param {Document} doc iframe 文档
  */
 function processMermaidBlocks(doc) {
@@ -600,35 +615,56 @@ function processMermaidBlocks(doc) {
   if (codeEls.length === 0) return;
   ensureMermaid();
 
-  const nodes = [];
+  // 主文档隐藏宿主（渲染容器）
+  const host = document.createElement('div');
+  host.style.cssText = 'position:absolute;left:-99999px;top:0;width:0;height:0;overflow:hidden;';
+  document.body.appendChild(host);
+
+  /** @type {Array<{placeholder: HTMLElement, node: HTMLElement, source: string}>} */
+  const jobs = [];
   codeEls.forEach((codeEl) => {
     const pre = codeEl.parentElement;
     const source = codeEl.textContent || '';
-    const div = doc.createElement('div');
-    div.className = 'mermaid';
-    div.textContent = source;
-    div.setAttribute('data-source', source);
-    if (pre) pre.replaceWith(div);
-    nodes.push(div);
+    // iframe 内占位（渲染成功后被 SVG 替换，失败显示错误）
+    const placeholder = doc.createElement('div');
+    placeholder.className = 'mermaid-placeholder';
+    placeholder.textContent = '（图表加载中…）';
+    placeholder.style.cssText = 'text-align:center;color:var(--md-muted);padding:8px;';
+    if (pre) pre.replaceWith(placeholder);
+    // 主文档渲染节点
+    const node = document.createElement('div');
+    node.className = 'mermaid';
+    node.textContent = source;
+    node.setAttribute('data-source', source);
+    host.appendChild(node);
+    jobs.push({ placeholder, node, source });
   });
 
   mermaidChain = mermaidChain
-    .then(() => mermaid.run({ nodes }))
+    .then(() => mermaid.run({ nodes: jobs.map((j) => j.node) }))
     .then(() => {
-      nodes.forEach((node) => {
-        const svg = node.querySelector('svg');
+      jobs.forEach((job) => {
+        const svg = job.node.querySelector('svg');
         if (svg) {
-          const key = (node.getAttribute('data-source') || '') + (currentDark ? ':dark' : ':light');
+          const key = job.source + (currentDark ? ':dark' : ':light');
           mermaidCache.set(key, svg.outerHTML);
+          // SVG 移入 iframe 文档（自动 adopt）
+          job.placeholder.replaceWith(svg);
+        } else {
+          job.placeholder.classList.add('mermaid-error');
+          job.placeholder.textContent = '【Mermaid 渲染失败】' + job.source;
         }
       });
     })
     .catch((err) => {
       console.error('Mermaid 渲染失败:', err);
-      nodes.forEach((node) => {
-        node.classList.add('mermaid-error');
-        node.textContent = '【Mermaid 渲染失败】' + (node.getAttribute('data-source') || '');
+      jobs.forEach((job) => {
+        job.placeholder.classList.add('mermaid-error');
+        job.placeholder.textContent = '【Mermaid 渲染失败】' + job.source;
       });
+    })
+    .finally(() => {
+      host.remove();
     });
 }
 
@@ -719,12 +755,18 @@ export function syncScroll(view) {
   const editorMax = editorScroll.scrollHeight - editorScroll.clientHeight;
   const ratio = editorMax > 0 ? editorScroll.scrollTop / editorMax : 0;
 
-  // 计算编辑区顶部可见行号
+  // 计算编辑区顶部可见行号（lineBlockAtHeight 接受内容坐标 scrollTop，精确可靠；
+  // posAtCoords 需要 client 坐标且在未渲染视口返回 null，仅作兜底）
   let topLine = 1;
-  const pos = view.posAtCoords({ x: 0, y: editorScroll.scrollTop + 2 });
-  if (pos !== null) {
-    const line = view.state.doc.lineAt(pos);
-    topLine = line.number;
+  try {
+    const block = view.lineBlockAtHeight(editorScroll.scrollTop + 2);
+    topLine = view.state.doc.lineAt(block.from).number;
+  } catch (err) {
+    const pos = view.posAtCoords({ x: 0, y: 2 });
+    if (pos !== null) {
+      const line = view.state.doc.lineAt(pos);
+      topLine = line.number;
+    }
   }
 
   // 找到源文件中位于当前行之前（含）的最后一个标题
@@ -746,6 +788,61 @@ export function syncScroll(view) {
   }
 
   scrollEl.scrollTop = Math.max(0, Math.round(targetTop));
+}
+
+// ---------------------------------------------------------------------------
+// 大纲联动接口（供左侧大纲栏 OutlineManager 复用）
+// ---------------------------------------------------------------------------
+
+/**
+ * 获取当前文档标题索引（scanHeadings 结果）。
+ * @returns {Array<{level: number, text: string, line: number}>}
+ */
+export function getHeadings() {
+  return headingsIndex;
+}
+
+/**
+ * 获取预览区标题 DOM 元素引用（与 headingsIndex 一一对应）。
+ * @returns {HTMLElement[]}
+ */
+export function getHeadingElements() {
+  return headingElements;
+}
+
+/**
+ * 获取预览区滚动位置。
+ * @returns {number}
+ */
+export function getPreviewScrollTop() {
+  if (!previewDoc) return 0;
+  const scrollEl = previewDoc.scrollingElement || previewDoc.documentElement;
+  return scrollEl ? scrollEl.scrollTop : 0;
+}
+
+/**
+ * 将预览区滚动到指定标题（先按索引，索引失配时按标题文本回退匹配）。
+ * @param {number} index 标题索引
+ */
+export function scrollPreviewToHeading(index) {
+  if (!previewDoc) return;
+  const scrollEl = previewDoc.scrollingElement || previewDoc.documentElement;
+  if (!scrollEl) return;
+  let el = headingElements[index];
+  if (!el && headingsIndex[index]) {
+    const targetText = String(headingsIndex[index].text).trim();
+    el = headingElements.find((h) => String(h.textContent || '').trim() === targetText) || null;
+  }
+  if (!el) return;
+  scrollEl.scrollTop = Math.max(0, Math.round(el.offsetTop - 10));
+}
+
+/**
+ * 注册预览区滚动回调（大纲当前章节高亮）。
+ * @param {() => void} callback
+ */
+export function onPreviewScroll(callback) {
+  previewScrollCallback = callback;
 }
 
 // ---------------------------------------------------------------------------

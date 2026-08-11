@@ -1,7 +1,7 @@
 'use strict';
 
 /**
- * YiQi@MD-Editor-wb-DSv4-Flash - Preload 脚本
+ * 墨览 YiQi@MD-Editor-wb-DSv4-Flash - Preload 脚本
  *
  * 通过 contextBridge 向渲染进程暴露安全的 IPC API。
  * 渲染进程只能访问 window.mdAPI 中声明的白名单方法。
@@ -112,7 +112,20 @@ try {
    */
   confirmClose: () => {
     ipcRenderer.send('window:allow-close');
-  }
+  },
+
+  /**
+   * 获取应用标题与版本号（主进程下发，避免渲染层硬编码）。
+   * @returns {Promise<{title: string, version: string}>}
+   */
+  getAppInfo: () => ipcRenderer.invoke('app:get-info'),
+
+  /**
+   * 将文本写入系统剪贴板（走主进程 electron clipboard，file:// 下可靠）。
+   * @param {string} text 要复制的文本
+   * @returns {Promise<{ok: boolean}>}
+   */
+  clipboardWriteText: (text) => ipcRenderer.invoke('clipboard:write-text', text)
 });
 } catch (err) {
   // 若 sandbox/contextIsolation 配置导致 preload 初始化失败，

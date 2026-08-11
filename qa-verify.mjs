@@ -504,8 +504,8 @@ check('IPC', '双向通道一致性总判定', ipcOk);
 section('4. 打包产物完整性');
 
 const buildDir = path.join(ROOT, 'build');
-const exePortable = path.join(buildDir, 'YiQi@MD-Editor-wb-DSv4-Flash 1.0.0-portable-x64.exe');
-const exeNsis = path.join(buildDir, 'YiQi@MD-Editor-wb-DSv4-Flash 1.0.0-x64.exe');
+const exePortable = path.join(buildDir, '墨览 YiQi@MD-Editor-wb-DSv4-Flash 1.1.0-portable-x64.exe');
+const exeNsis = path.join(buildDir, '墨览 YiQi@MD-Editor-wb-DSv4-Flash 1.1.0-x64.exe');
 const asarPath = path.join(buildDir, 'win-unpacked', 'resources', 'app.asar');
 
 function mb(bytes) {
@@ -550,6 +550,8 @@ if (fs.existsSync(asarPath)) {
     'src/renderer/find.js',
     'src/renderer/preview.js',
     'src/renderer/tabbar.js',
+    'src/renderer/outline.js',
+    'src/renderer/copybutton.js',
     'src/renderer/utils.js',
     'src/renderer/styles.css',
     'src/renderer/vendor/bundle.js',
@@ -617,9 +619,9 @@ if (Array.isArray(filesCfg)) {
 }
 check('files 配置', 'main 字段指向 src/main.js', pkg.main === 'src/main.js');
 check('files 配置', 'npm name 正确', pkg.name === 'yiqi-md-editor-wb-dsv4-flash');
-check('files 配置', 'productName 正确（含版本号）', pkg.productName === 'YiQi@MD-Editor-wb-DSv4-Flash 1.0.0');
-check('files 配置', 'build.productName 与 productName 一致', pkg.build && pkg.build.productName === 'YiQi@MD-Editor-wb-DSv4-Flash 1.0.0');
-check('files 配置', 'build.nsis.shortcutName 正确', pkg.build && pkg.build.nsis && pkg.build.nsis.shortcutName === 'YiQi@MD-Editor-wb-DSv4-Flash 1.0.0');
+check('files 配置', 'productName 正确（含版本号）', pkg.productName === '墨览 YiQi@MD-Editor-wb-DSv4-Flash 1.1.0');
+check('files 配置', 'build.productName 与 productName 一致', pkg.build && pkg.build.productName === '墨览 YiQi@MD-Editor-wb-DSv4-Flash 1.1.0');
+check('files 配置', 'build.nsis.shortcutName 正确', pkg.build && pkg.build.nsis && pkg.build.nsis.shortcutName === '墨览 YiQi@MD-Editor-wb-DSv4-Flash 1.1.0');
 check('files 配置', 'build.icon 指向 resources/icon.ico', pkg.build && pkg.build.icon === 'resources/icon.ico');
 if (Array.isArray(filesCfg)) {
   check('files 配置', '包含 resources/**/*（图标进包）', filesCfg.includes('resources/**/*'));
@@ -638,12 +640,12 @@ const tabbarSrcChk = fs.readFileSync(path.join(ROOT, 'src', 'renderer', 'tabbar.
 const stylesSrcChk = fs.readFileSync(path.join(ROOT, 'src', 'renderer', 'styles.css'), 'utf8');
 
 // 改名
-check('改名', "main.js APP_NAME = YiQi@MD-Editor-wb-DSv4-Flash", mainSrcChk.includes("const APP_NAME = 'YiQi@MD-Editor-wb-DSv4-Flash'"));
+check('改名', "main.js APP_NAME = 墨览 YiQi@MD-Editor-wb-DSv4-Flash", mainSrcChk.includes("const APP_NAME = '墨览 YiQi@MD-Editor-wb-DSv4-Flash'"));
 check('改名', 'main.js 窗口标题使用 appTitle()（产品名 + 版本号）', mainSrcChk.includes('title: appTitle()') && mainSrcChk.includes('return APP_NAME + \' \' + app.getVersion()'));
-check('改名', 'index.html <title> 含产品名 + 版本号', htmlSrcChk.includes('<title>YiQi@MD-Editor-wb-DSv4-Flash 1.0.0</title>'));
-check('改名', 'index.html #app-logo 为短名（不含版本号）', htmlSrcChk.includes('>YiQi@MD-Editor-wb-DSv4-Flash</span>'));
-check('改名', 'app.js document.title 拼接 APP_TITLE（含版本号）', appSrcChk.includes("const APP_TITLE = 'YiQi@MD-Editor-wb-DSv4-Flash 1.0.0'") && appSrcChk.includes("' - ' + APP_TITLE"));
-check('改名', 'preload.js 头注释为新名', fs.readFileSync(path.join(ROOT, 'src', 'preload.js'), 'utf8').includes('YiQi@MD-Editor-wb-DSv4-Flash'));
+check('改名', 'index.html <title> 含产品名 + 版本号', htmlSrcChk.includes('<title>墨览 YiQi@MD-Editor-wb-DSv4-Flash 1.1.0</title>'));
+check('改名', 'index.html #app-logo 为短名（不含版本号）', htmlSrcChk.includes('>墨览 YiQi</span>'));
+check('改名', 'app.js document.title 拼接 APP_TITLE（含版本号）', appSrcChk.includes("let APP_TITLE = '墨览 YiQi@MD-Editor-wb-DSv4-Flash 1.1.0'") && appSrcChk.includes("' - ' + APP_TITLE"));
+check('改名', 'preload.js 头注释为新名', fs.readFileSync(path.join(ROOT, 'src', 'preload.js'), 'utf8').includes('墨览 YiQi@MD-Editor-wb-DSv4-Flash'));
 
 // 多标签
 check('多标签', 'index.html 含 #tabbar 容器', htmlSrcChk.includes('id="tabbar"'));

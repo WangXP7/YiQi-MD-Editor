@@ -5,7 +5,7 @@
  * 启动 build/win-unpacked/ 下的真实打包 exe（含 app.asar），通过
  * Chrome DevTools Protocol（--remote-debugging-port）验证：
  *  1. exe 正常启动、无崩溃（渲染进程存活）
- *  2. 窗口标题 = 「未命名.md - YiQi@MD-Editor-wb-DSv4-Flash 1.0.0」（asar 内 main.js appTitle 生效）
+ *  2. 窗口标题 = 「未命名.md - 墨览 YiQi@MD-Editor-wb-DSv4-Flash 1.1.0」（asar 内 main.js appTitle 生效）
  *  3. 渲染进程 window.mdAPI 已暴露（asar 内 preload + sandbox:false 生效 → 三 Bug 修复在打包产物中成立）
  *  4. 初始 1 个多标签 tab（asar 内 tabbar.js 生效）
  *  5. document.title / #app-logo 为新名
@@ -19,7 +19,7 @@ const path = require('path');
 const http = require('http');
 
 const ROOT = __dirname;
-const EXE = path.join(ROOT, 'build', 'win-unpacked', 'YiQi@MD-Editor-wb-DSv4-Flash 1.0.0.exe');
+const EXE = path.join(ROOT, 'build', 'win-unpacked', '墨览 YiQi@MD-Editor-wb-DSv4-Flash 1.1.0.exe');
 const PORT = 9333;
 
 const failures = [];
@@ -159,12 +159,12 @@ async function main() {
   })`).then(JSON.parse);
 
   check('打包产物渲染进程 window.mdAPI 已暴露（preload+sandbox:false 生效）', state.mdapi === 'object', 'typeof=' + state.mdapi);
-  const expectedMethods = ['openDialog','readFile','writeFile','saveAsDialog','getRecentFiles','getLastFilePath','updateState','exportHtml','exportPdf','onMenuAction','getPathForFile','showMessage','confirmClose'];
+  const expectedMethods = ['openDialog','readFile','writeFile','saveAsDialog','getRecentFiles','getLastFilePath','updateState','exportHtml','exportPdf','onMenuAction','getPathForFile','showMessage','confirmClose','getAppInfo','clipboardWriteText'];
   const missing = expectedMethods.filter((m) => !(state.mdapiMethods || '').split(',').includes(m));
-  check('mdAPI 13 方法齐全', missing.length === 0, '缺失=' + (missing.join(',') || '无') + ' 实际=' + state.mdapiMethods);
+  check('mdAPI 15 方法齐全', missing.length === 0, '缺失=' + (missing.join(',') || '无') + ' 实际=' + state.mdapiMethods);
   check('初始 1 个多标签 tab 且活动', state.tabs === 1 && state.active === 1, JSON.stringify({ tabs: state.tabs, active: state.active }));
-  check('document.title 为新名 + 版本', /YiQi@MD-Editor-wb-DSv4-Flash 1\.0\.0/.test(state.docTitle), state.docTitle);
-  check('#app-logo 为新短名', state.logo === 'YiQi@MD-Editor-wb-DSv4-Flash', state.logo);
+  check('document.title 为新名 + 版本', /墨览 YiQi@MD-Editor-wb-DSv4-Flash 1\.1\.0/.test(state.docTitle), state.docTitle);
+  check('#app-logo 为新短名', state.logo === '墨览 YiQi', state.logo);
 
   // 捕获渲染进程 console 错误：挂载一个全局错误收集再触发一次预览渲染
   const errCheck = await cdpEval(page.webSocketDebuggerUrl, `new Promise((resolve) => {

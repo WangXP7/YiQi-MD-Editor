@@ -2,7 +2,7 @@
 
 ![浅色版图标](resources/icon-256.png)
 
-# YiQi@MD-Editor-wb-DSv4-Flash 1.0.0
+# 墨览 YiQi@MD-Editor-wb-DSv4-Flash 1.1.0
 
 **水墨国风 · 全格式 Markdown 查看 / 编辑桌面应用**
 
@@ -18,8 +18,9 @@
 
 | 类别 | 能力 |
 |------|------|
-| **多标签编辑** | VS Code 风格顶部标签栏：同时打开多份 MD、点击切换、✕/中键关闭、未保存确认、脏标记 `*`、标签横向滚动 |
-| **编辑体验** | CodeMirror 6：行号、括号匹配、代码折叠、自动补全、当前行高亮、Tab 缩进 |
+| **多标签编辑** | VS Code 风格顶部标签栏：同时打开多份 MD、点击切换、✕/中键关闭、未保存确认、脏标记 `*`、标签横向滚动、拖拽排序、Ctrl+Tab / Ctrl+Shift+Tab 切换、Ctrl+W 关闭 |
+| **左侧大纲栏** | h1-h6 树状缩进大纲：点击跳转编辑器 + 预览区、编辑/预览滚动当前章节高亮、可折叠（状态持久化）、宽度可拖拽 |
+| **编辑体验** | CodeMirror 6：行号、括号匹配、代码折叠、自动补全、当前行高亮、Tab 缩进、选区悬浮「复制」按钮（主进程剪贴板，可靠复制） |
 | **实时预览** | 双栏分屏 + 滚动联动，支持 仅编辑 / 仅预览 / 分屏 三种视图（Ctrl+1/2/3） |
 | **格式支持全** | GFM 表格/任务列表/删除线/自动链接、脚注、emoji、KaTeX 数学公式、highlight.js 代码高亮、Mermaid 图、`[[toc]]` 目录、上标/下标/缩略语 |
 | **文件操作** | 新建标签 (Ctrl+N) / 打开 (Ctrl+O) / 保存 (Ctrl+S) / 另存为 (Shift+Ctrl+S)、拖拽打开、最近打开文件、会话恢复 |
@@ -42,7 +43,7 @@ npm run dist:win
 
 ### 直接使用（无需安装）
 
-下载 `build/YiQi@MD-Editor-wb-DSv4-Flash 1.0.0-portable-x64.exe`，双击即用。
+下载 `build/墨览 YiQi@MD-Editor-wb-DSv4-Flash 1.1.0-portable-x64.exe`，双击即用。
 
 ## 🧱 技术栈
 
@@ -61,8 +62,10 @@ npm run dist:win
 - **单 CodeMirror 实例 + 多 Tab 状态**：每个标签独立保存 内容 / 编码 / 脏标记 / 滚动 / 光标；
   切换标签时把当前编辑器状态写回旧标签，再将新标签内容载入同一编辑器
   （`editor.setDoc` + 滚动/光标恢复），避免多实例的内存开销与切换闪烁。
-- `src/renderer/tabbar.js` — TabManager：标签创建 / 切换 / 关闭 / 保存 / 脏标记 / tab 栏渲染。
+- `src/renderer/tabbar.js` — TabManager：标签创建 / 切换 / 关闭 / 保存 / 脏标记 / tab 栏渲染 / 拖拽排序。
 - `src/renderer/fileops.js` — FileOps 共享单例，通过 `setActiveTab(tab)` 指向当前标签。
+- `src/renderer/outline.js` — OutlineManager：左侧大纲栏（数据复用 preview.js scanHeadings）。
+- `src/renderer/copybutton.js` — CopyButtonManager：选区悬浮复制按钮（主进程剪贴板）。
 
 ## 📁 项目结构
 

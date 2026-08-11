@@ -26,6 +26,7 @@ export class TabManager {
    * @param {(meta: {name: string, encodingLabel: string, dirty: boolean, path: string|null}) => void} [options.updateMeta]
    *        更新窗口标题/编码徽章
    * @param {(message: string, type?: string) => void} [options.showToast] 轻量提示
+   * @param {(tab: object) => void} [options.onSwitch] 标签切换完成回调（大纲重建等）
    */
   constructor(options) {
     this.container = options.container;
@@ -36,6 +37,7 @@ export class TabManager {
     this.updateStats = options.updateStats || (() => {});
     this.updateMeta = options.updateMeta || (() => {});
     this.showToast = options.showToast || (() => {});
+    this.onSwitch = options.onSwitch || (() => {});
 
     /** @type {Array<object>} 全部打开的标签 */
     this.tabs = [];
@@ -44,6 +46,7 @@ export class TabManager {
     /** 载入标签时的内部标记（用于抑制编辑器 docChanged 回调） */
     this._loading = false;
     this._seq = 0;
+    this._dragIndex = -1;
   }
 
   /** 当前活动标签（无则返回 null） */
@@ -158,6 +161,27 @@ export class TabManager {
     this.fileOps.setActiveTab(next);
     this._updateMeta();
     this._render();
+    this.onSwitch(next);
+  }
+
+  /**
+   * 切换到下一个标签（Ctrl+Tab）。
+   */
+  nextTab() {
+    if (this.tabs.length < 2) return;
+    const idx = this.tabs.findIndex((t) => t.id === this.activeTabId);
+    const next = this.tabs[(idx + 1) % this.tabs.length];
+    this.switchTab(next.id);
+  }
+
+  /**
+   * 切换到上一个标签（Ctrl+Shift+Tab）。
+   */
+  prevTab() {
+    if (this.tabs.length < 2) return;
+    const idx = this.tabs.findIndex((t) => t.id === this.activeTabId);
+    const next = this.tabs[(idx - 1 + this.tabs.length) % this.tabs.length];
+    this.switchTab(next.id);
   }
 
   /**
@@ -369,6 +393,44 @@ export class TabManager {
         if (e.button === 1) {
           e.preventDefault();
           this.closeTab(tab.id);
+        }
+      });
+
+      // 拖拽排序（HTML5 Drag & Drop）：拖到目标标签上释放即重排
+      el.draggable = true;
+      el.addEventListener('dragstart', (e) => {
+        this._dragIndex = this.tabs.findIndex((t) => t.id === tab.id);
+        try {
+          e.dataTransfer.effectAllowed = 'move';
+          e.dataTransfer.setData('text/plain', tab.id);
+        } catch (err) {
+          // 忽略 dataTransfer 异常
+        }
+        el.classList.add('dragging');
+      });
+      el.addEventListener('dragend', () => {
+        el.classList.remove('dragging');
+        this._dragIndex = -1;
+        this._render();
+      });
+      el.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        if (e.dataTransfer) e.dataTransfer.dropEffect = 'move';
+        el.classList.add('drag-over');
+      });
+      el.addEventListener('dragleave', () => {
+        el.classList.remove('drag-over');
+      });
+      el.addEventListener('drop', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        el.classList.remove('drag-over');
+        const from = this._dragIndex;
+        const to = this.tabs.findIndex((t) => t.id === tab.id);
+        if (from >= 0 && to >= 0 && from !== to) {
+          const moved = this.tabs.splice(from, 1)[0];
+          this.tabs.splice(to, 0, moved);
+          this._render();
         }
       });
 

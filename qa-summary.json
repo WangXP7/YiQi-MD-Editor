@@ -1,9 +1,9 @@
 {
-  "total": 103,
-  "passed": 103,
+  "total": 105,
+  "passed": 105,
   "failed": 0,
   "failedList": [],
-  "portableExe": "76.52 MiB (80237148 bytes)",
-  "nsisExe": "76.85 MiB (80583664 bytes)",
+  "portableExe": "76.53 MiB (80251517 bytes)",
+  "nsisExe": "76.86 MiB (80598206 bytes)",
   "routingDecision": "NoOne"
 }

@@ -350,14 +350,14 @@ button {
   background: var(--bg-preview);
 }
 
-/* 视图切换：仅编辑 / 仅预览 / 分屏 */
+/* 视图切换：仅编辑 / 仅预览 / 分屏（只隐藏工作区分隔条 #divider，不影响大纲分隔条） */
 body.view-editor #preview-pane,
-body.view-editor .divider {
+body.view-editor #divider {
   display: none;
 }
 
 body.view-preview #editor-pane,
-body.view-preview .divider {
+body.view-preview #divider {
   display: none;
 }
 
@@ -692,3 +692,189 @@ body.view-split #preview-pane {
     min-width: 0;
   }
 }
+
+/* ==========================================================================
+   墨览 YiQi@MD-Editor-wb-DSv4-Flash 1.1.0 - 左侧大纲栏 + 悬浮复制按钮
+   ========================================================================== */
+
+/* ---------- 主内容行（大纲栏 + 内容列） ---------- */
+#app-body {
+  flex: 1;
+  display: flex;
+  min-height: 0;
+  min-width: 0;
+}
+
+#content-col {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  min-height: 0;
+}
+
+/* 大纲栏折叠：隐藏侧栏与分隔条，内容列占满 */
+body.outline-collapsed #outline-sidebar,
+body.outline-collapsed #outline-divider {
+  display: none;
+}
+
+/* 工具栏大纲按钮激活态 */
+.outline-toggle.active {
+  background: var(--accent-soft);
+  color: var(--accent);
+  border-color: var(--accent);
+}
+
+/* ---------- 大纲栏 ---------- */
+.outline-sidebar {
+  width: 240px;
+  flex: 0 0 auto;
+  display: flex;
+  flex-direction: column;
+  background: var(--bg-tabbar);
+  border-right: 1px solid var(--border);
+  min-height: 0;
+  overflow: hidden;
+}
+
+.outline-header {
+  height: 36px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 8px 0 12px;
+  border-bottom: 1px solid var(--border);
+  user-select: none;
+}
+
+.outline-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  white-space: nowrap;
+}
+
+.outline-collapse {
+  width: 22px;
+  height: 22px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  border-radius: 4px;
+  background: transparent;
+  color: var(--text-secondary);
+  font-size: 13px;
+  line-height: 1;
+  cursor: pointer;
+  padding: 0;
+}
+
+.outline-collapse:hover {
+  background: var(--bg-hover);
+  color: var(--text-primary);
+}
+
+.outline-list {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 6px 4px 12px 4px;
+}
+
+.outline-item {
+  padding: 3px 8px;
+  margin: 1px 0;
+  font-size: 12.5px;
+  line-height: 1.5;
+  color: var(--text-secondary);
+  border-radius: 4px;
+  border-left: 2px solid transparent;
+  cursor: pointer;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  user-select: none;
+}
+
+.outline-item:hover {
+  background: var(--bg-hover);
+  color: var(--text-primary);
+}
+
+.outline-item.active {
+  background: var(--accent-soft);
+  color: var(--accent);
+  border-left-color: var(--accent);
+  font-weight: 600;
+}
+
+/* 层级缩进：h1 无缩进，逐级递增 */
+.outline-lv-1 { padding-left: 8px; }
+.outline-lv-2 { padding-left: 20px; }
+.outline-lv-3 { padding-left: 32px; }
+.outline-lv-4 { padding-left: 44px; }
+.outline-lv-5 { padding-left: 56px; }
+.outline-lv-6 { padding-left: 68px; }
+
+.outline-empty {
+  padding: 24px 12px;
+  text-align: center;
+  font-size: 12px;
+  color: var(--text-muted);
+  user-select: none;
+}
+
+.outline-divider {
+  flex: 0 0 5px;
+  background: var(--border);
+  cursor: col-resize;
+  z-index: 5;
+}
+
+.outline-divider:hover,
+.outline-divider.active {
+  background: var(--accent);
+}
+
+/* ---------- 标签拖拽排序 ---------- */
+.tab.dragging {
+  opacity: 0.45;
+}
+
+.tab.drag-over {
+  background: var(--accent-soft);
+  box-shadow: inset 2px 0 0 var(--accent);
+}
+
+/* ---------- 选区悬浮复制按钮 ---------- */
+.copy-float-btn {
+  position: fixed;
+  z-index: 150;
+  padding: 6px 12px;
+  font-size: 12px;
+  line-height: 1;
+  border: none;
+  border-radius: 6px;
+  background: var(--accent);
+  color: #ffffff;
+  box-shadow: var(--shadow-lg);
+  cursor: pointer;
+  opacity: 0.95;
+  user-select: none;
+  transition: opacity 0.15s ease, transform 0.15s ease;
+}
+
+.copy-float-btn:hover {
+  opacity: 1;
+  transform: translateY(-1px);
+  background: var(--accent-hover);
+}
+
+.copy-float-btn:active {
+  transform: translateY(0);
+}
+

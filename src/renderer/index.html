@@ -4,14 +4,15 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https: http:; font-src 'self' data:; connect-src 'self' https: http:;">
-  <title>YiQi@MD-Editor-wb-DSv4-Flash 1.0.0</title>
+  <title>墨览 YiQi@MD-Editor-wb-DSv4-Flash 1.1.0</title>
   <link rel="stylesheet" href="styles.css">
 </head>
 <body data-theme="light">
   <!-- 顶部工具栏 -->
   <header id="toolbar">
     <div class="toolbar-left">
-      <span id="app-logo" class="app-logo">YiQi@MD-Editor-wb-DSv4-Flash</span>
+      <button id="btn-outline" class="tool-btn outline-toggle" title="显示/隐藏大纲栏 (Ctrl+Shift+O)">📑 大纲</button>
+      <span id="app-logo" class="app-logo">墨览 YiQi</span>
       <span id="encoding-badge" class="encoding-badge">UTF-8</span>
     </div>
     <div class="toolbar-right">
@@ -31,24 +32,42 @@
     </div>
   </header>
 
-  <!-- 多标签栏（VS Code 风格，动态渲染） -->
-  <nav id="tabbar" class="tabbar" aria-label="打开的文档"></nav>
+  <!-- 主内容行：左侧大纲栏 + 内容列 -->
+  <div id="app-body">
+    <!-- 左侧大纲栏（可折叠，宽度可拖拽） -->
+    <aside id="outline-sidebar" class="outline-sidebar" aria-label="文档大纲">
+      <div class="outline-header">
+        <span class="outline-title">📑 大纲</span>
+        <button id="outline-collapse" class="outline-collapse" title="隐藏大纲栏">«</button>
+      </div>
+      <div id="outline-list" class="outline-list"></div>
+    </aside>
 
-  <!-- 主工作区 -->
-  <main id="workspace">
-    <!-- 编辑区 -->
-    <section id="editor-pane" class="pane">
-      <div id="editor-container"></div>
-    </section>
+    <!-- 大纲栏宽度拖拽分隔条 -->
+    <div id="outline-divider" class="divider outline-divider" title="拖动调整大纲栏宽度"></div>
 
-    <!-- 分隔条 -->
-    <div id="divider" class="divider" title="拖动调整分栏宽度"></div>
+    <!-- 内容列：多标签栏 + 主工作区 -->
+    <div id="content-col">
+      <!-- 多标签栏（VS Code 风格，动态渲染） -->
+      <nav id="tabbar" class="tabbar" aria-label="打开的文档"></nav>
 
-    <!-- 预览区：使用 sandbox iframe 隔离样式 -->
-    <section id="preview-pane" class="pane">
-      <iframe id="preview-frame" sandbox="allow-same-origin"></iframe>
-    </section>
-  </main>
+      <!-- 主工作区 -->
+      <main id="workspace">
+        <!-- 编辑区 -->
+        <section id="editor-pane" class="pane">
+          <div id="editor-container"></div>
+        </section>
+
+        <!-- 分隔条 -->
+        <div id="divider" class="divider" title="拖动调整分栏宽度"></div>
+
+        <!-- 预览区：使用 sandbox iframe 隔离样式 -->
+        <section id="preview-pane" class="pane">
+          <iframe id="preview-frame" sandbox="allow-same-origin"></iframe>
+        </section>
+      </main>
+    </div>
+  </div>
 
   <!-- 查找/替换面板 -->
   <div id="find-panel" class="find-panel hidden">
@@ -87,6 +106,8 @@
   <div id="drop-overlay" class="drop-overlay hidden">
     <div class="drop-overlay-text">松开以打开文件</div>
   </div>
+
+  <!-- 选区悬浮复制按钮（由 copybutton.js 动态创建） -->
 
   <!-- 渲染层由 esbuild 打包为单一 bundle（npm run build:renderer 生成） -->
   <script src="vendor/bundle.js"></script>

@@ -4,7 +4,7 @@
  *
  * 验证范围：
  *  1. 三 Bug 根因与修复（sandbox:false / preload try/catch / app.js 防御检查）
- *  2. 改名完整性（新名 YiQi@MD-Editor-wb-DSv4-Flash 1.0.0 / 旧名 V4-Flash 残留 0）
+ *  2. 改名完整性（新名 墨览 YiQi@MD-Editor-wb-DSv4-Flash 1.1.0 / 旧名 V4-Flash 残留 0）
  *  3. 多标签实现（TabManager / tabbar / FileOps.setActiveTab）
  *  4. 打包产物（exe 存在、app.asar 内容）
  *
@@ -44,7 +44,7 @@ check('sandbox:false 行号约 191（实际 ' + sandboxLine + '）', sandboxLine
 check('console-message 转发存在', mainSrc.includes('console-message'));
 check('mainWindow close 拦截 → confirm-close', mainSrc.includes("action: 'confirm-close'"));
 check("菜单 help-markdown 动作（sendMenuAction('help-markdown')）", mainSrc.includes("sendMenuAction('help-markdown')"));
-check('APP_NAME = YiQi@MD-Editor-wb-DSv4-Flash', mainSrc.includes("const APP_NAME = 'YiQi@MD-Editor-wb-DSv4-Flash'"));
+check('APP_NAME = 墨览 YiQi@MD-Editor-wb-DSv4-Flash', mainSrc.includes("const APP_NAME = '墨览 YiQi@MD-Editor-wb-DSv4-Flash'"));
 check('main.js 不含 墨笔', !/墨笔/.test(mainSrc));
 check('main.js 窗口标题用 appTitle()（含版本号）', mainSrc.includes('title: appTitle()') && mainSrc.includes("APP_NAME + ' ' + app.getVersion()"));
 
@@ -94,14 +94,14 @@ console.log('\n--- 2. 改名完整性（新名覆盖 + 旧名残留 0） ---');
 console.log('\n[2.1] package.json');
 const pkg = JSON.parse(read(path.join(ROOT, 'package.json')));
 check('package.json name = yiqi-md-editor-wb-dsv4-flash', pkg.name === 'yiqi-md-editor-wb-dsv4-flash');
-check('package.json productName = YiQi@MD-Editor-wb-DSv4-Flash 1.0.0', pkg.productName === 'YiQi@MD-Editor-wb-DSv4-Flash 1.0.0');
-check('package.json build.productName 一致', pkg.build && pkg.build.productName === 'YiQi@MD-Editor-wb-DSv4-Flash 1.0.0');
-check('package.json build.nsis.shortcutName 一致', pkg.build && pkg.build.nsis && pkg.build.nsis.shortcutName === 'YiQi@MD-Editor-wb-DSv4-Flash 1.0.0');
+check('package.json productName = 墨览 YiQi@MD-Editor-wb-DSv4-Flash 1.1.0', pkg.productName === '墨览 YiQi@MD-Editor-wb-DSv4-Flash 1.1.0');
+check('package.json build.productName 一致', pkg.build && pkg.build.productName === '墨览 YiQi@MD-Editor-wb-DSv4-Flash 1.1.0');
+check('package.json build.nsis.shortcutName 一致', pkg.build && pkg.build.nsis && pkg.build.nsis.shortcutName === '墨览 YiQi@MD-Editor-wb-DSv4-Flash 1.1.0');
 
 console.log('\n[2.2] src/renderer/index.html');
 const htmlSrc = read(path.join(ROOT, 'src/renderer/index.html'));
-check('<title>YiQi@MD-Editor-wb-DSv4-Flash 1.0.0</title>', /<title>YiQi@MD-Editor-wb-DSv4-Flash 1\.0\.0<\/title>/.test(htmlSrc));
-check('#app-logo 为 YiQi@MD-Editor-wb-DSv4-Flash（短名）', htmlSrc.includes('>YiQi@MD-Editor-wb-DSv4-Flash</span>'));
+check('<title>墨览 YiQi@MD-Editor-wb-DSv4-Flash 1.1.0</title>', /<title>墨览 YiQi@MD-Editor-wb-DSv4-Flash 1\.1\.0<\/title>/.test(htmlSrc));
+check('#app-logo 为 墨览 YiQi（短名）', htmlSrc.includes('>墨览 YiQi</span>'));
 check('index.html 含 #tabbar 多标签容器', htmlSrc.includes('id="tabbar"'));
 check('index.html 不含 墨笔', !/墨笔/.test(htmlSrc));
 
@@ -180,8 +180,8 @@ check('新名 YiQi@MD-Editor-wb-DSv4-Flash 已覆盖 ' + newNameResidue.length +
 console.log('\n--- 3. 打包产物 ---');
 
 const buildDir = path.join(ROOT, 'build');
-const portable = path.join(buildDir, 'YiQi@MD-Editor-wb-DSv4-Flash 1.0.0-portable-x64.exe');
-const nsis = path.join(buildDir, 'YiQi@MD-Editor-wb-DSv4-Flash 1.0.0-x64.exe');
+const portable = path.join(buildDir, '墨览 YiQi@MD-Editor-wb-DSv4-Flash 1.1.0-portable-x64.exe');
+const nsis = path.join(buildDir, '墨览 YiQi@MD-Editor-wb-DSv4-Flash 1.1.0-x64.exe');
 const asarPath = path.join(buildDir, 'win-unpacked', 'resources', 'app.asar');
 
 console.log('\n[3.1] build 产物存在性与大小');
@@ -225,7 +225,7 @@ if (existsSync(asarPath)) {
 
   const mainIn = extractAny('src/main.js') || '';
   check('asar main.js sandbox:false', /sandbox:\s*false/.test(mainIn));
-  check('asar main.js APP_NAME 新名', mainIn.includes("const APP_NAME = 'YiQi@MD-Editor-wb-DSv4-Flash'"));
+  check('asar main.js APP_NAME 新名', mainIn.includes("const APP_NAME = '墨览 YiQi@MD-Editor-wb-DSv4-Flash'"));
   check('asar main.js 不含 墨笔', !/墨笔/.test(mainIn));
 
   const preIn = extractAny('src/preload.js') || '';
@@ -237,7 +237,7 @@ if (existsSync(asarPath)) {
   check('asar bundle.js 不含 墨笔', !/墨笔/.test(bundleIn));
 
   const idxIn = extractAny('src/renderer/index.html') || '';
-  check('asar index.html title 新名（含版本号）', /<title>YiQi@MD-Editor-wb-DSv4-Flash 1\.0\.0<\/title>/.test(idxIn));
+  check('asar index.html title 新名（含版本号）', /<title>墨览 YiQi@MD-Editor-wb-DSv4-Flash 1\.1\.0<\/title>/.test(idxIn));
   check('asar index.html 含 #tabbar', idxIn.includes('id="tabbar"'));
 
   const tabbarIn = extractAny('src/renderer/tabbar.js') || '';

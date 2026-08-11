@@ -1,7 +1,7 @@
 'use strict';
 
 /**
- * YiQi@MD-Editor-wb-DSv4-Flash - Electron 主进程
+ * 墨览 YiQi@MD-Editor-wb-DSv4-Flash - Electron 主进程
  *
  * 职责：
  *  - 创建与管理主窗口（记住位置与大小）
@@ -10,10 +10,12 @@
  *  - 编码检测（UTF-8 / UTF-8 BOM / GBK / GB18030）
  *  - 导出 HTML / PDF
  *  - 最近打开文件、会话恢复
+ *  - 剪贴板写入（供渲染层悬浮复制按钮使用）
+ *  - 应用标题/版本号下发（app:get-info）
  *  - 与渲染进程的 IPC 通信
  */
 
-const { app, BrowserWindow, Menu, dialog, ipcMain, shell } = require('electron');
+const { app, BrowserWindow, Menu, dialog, ipcMain, shell, clipboard } = require('electron');
 const path = require('path');
 const fs = require('fs');
 const iconv = require('iconv-lite');
@@ -22,7 +24,7 @@ const iconv = require('iconv-lite');
 // 常量与全局状态
 // ---------------------------------------------------------------------------
 
-const APP_NAME = 'YiQi@MD-Editor-wb-DSv4-Flash';
+const APP_NAME = '墨览 YiQi@MD-Editor-wb-DSv4-Flash';
 const CONFIG_FILE = 'config.json';
 const RECENT_MAX = 10;
 
@@ -626,6 +628,11 @@ function buildMenu() {
           accelerator: 'CmdOrCtrl+T',
           click: () => sendMenuAction('toggle-theme')
         },
+        {
+          label: '显示/隐藏大纲栏',
+          accelerator: 'CmdOrCtrl+Shift+O',
+          click: () => sendMenuAction('toggle-outline')
+        },
         { type: 'separator' },
         { role: 'reload', label: '重新加载' },
         { role: 'toggleDevTools', label: '开发者工具' },
@@ -725,6 +732,17 @@ function registerIpc() {
       appState.lastFilePath = typeof payload.lastFilePath === 'string' ? payload.lastFilePath : null;
       saveConfig();
     }
+    return { ok: true };
+  });
+
+  // 应用标题/版本号下发（渲染层不再硬编码版本号）
+  ipcMain.handle('app:get-info', () => {
+    return { title: appTitle(), version: app.getVersion() };
+  });
+
+  // 剪贴板写入（渲染层悬浮复制按钮；file:// 下 navigator.clipboard 受限，走主进程可靠）
+  ipcMain.handle('clipboard:write-text', (event, text) => {
+    clipboard.writeText(String(text == null ? '' : text));
     return { ok: true };
   });
 }

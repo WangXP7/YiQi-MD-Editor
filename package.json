@@ -1,11 +1,11 @@
 {
   "name": "yiqi-md-editor-wb-dsv4-flash",
-  "version": "1.0.0",
-  "description": "YiQi@MD-Editor-wb-DSv4-Flash 1.0.0 - 美观、全格式支持的 Windows Markdown 查看/编辑桌面应用（多标签）",
+  "version": "1.1.0",
+  "description": "墨览 YiQi@MD-Editor-wb-DSv4-Flash 1.1.0 - 美观、全格式支持的 Windows Markdown 查看/编辑桌面应用（多标签 + 大纲栏 + 悬浮复制）",
   "main": "src/main.js",
   "author": "MarkNote Team",
   "license": "MIT",
-  "productName": "YiQi@MD-Editor-wb-DSv4-Flash 1.0.0",
+  "productName": "墨览 YiQi@MD-Editor-wb-DSv4-Flash 1.1.0",
   "scripts": {
     "build:renderer": "node scripts/build-renderer.mjs",
     "start": "npm run build:renderer && electron .",
@@ -45,7 +45,7 @@
   },
   "build": {
     "appId": "com.marknote.editor",
-    "productName": "YiQi@MD-Editor-wb-DSv4-Flash 1.0.0",
+    "productName": "墨览 YiQi@MD-Editor-wb-DSv4-Flash 1.1.0",
     "asar": true,
     "directories": {
       "output": "build"
@@ -78,7 +78,7 @@
       "allowToChangeInstallationDirectory": true,
       "createDesktopShortcut": true,
       "createStartMenuShortcut": true,
-      "shortcutName": "YiQi@MD-Editor-wb-DSv4-Flash 1.0.0"
+      "shortcutName": "墨览 YiQi@MD-Editor-wb-DSv4-Flash 1.1.0"
     },
     "portable": {
       "artifactName": "${productName}-portable-${arch}.${ext}"

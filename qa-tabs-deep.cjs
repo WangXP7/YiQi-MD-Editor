@@ -61,6 +61,8 @@ app.whenReady().then(async () => {
   ipcMain.handle('file:get-last', () => ({ lastFilePath: null }));
   ipcMain.handle('file:recent', () => ({ recentFiles: [] }));
   ipcMain.handle('app:state-update', () => ({ ok: true }));
+  ipcMain.handle('app:get-info', () => ({ title: '墨览 YiQi@MD-Editor-wb-DSv4-Flash 1.1.0', version: '1.1.0' }));
+  ipcMain.handle('clipboard:write-text', () => ({ ok: true }));
   ipcMain.handle('file:read', (e, p) => {
     try {
       const buf = fs.readFileSync(p);
@@ -176,9 +178,9 @@ app.whenReady().then(async () => {
     // 1. 初始状态
     let s = await getState();
     check('初始 1 个未命名标签且为活动', s.tabs === 1 && s.active === 1, JSON.stringify(s));
-    check('窗口标题格式「文件名 - 产品名 版本」', /^未命名\.md - YiQi@MD-Editor-wb-DSv4-Flash 1\.0\.0$/.test(s.title), s.title);
+    check('窗口标题格式「文件名 - 产品名 版本」', /^未命名\.md - 墨览 YiQi@MD-Editor-wb-DSv4-Flash 1\.1\.0$/.test(s.title), s.title);
     const winTitle = win.getTitle();
-    check('BrowserWindow 实际标题含新名 + 版本', /YiQi@MD-Editor-wb-DSv4-Flash 1\.0\.0/.test(winTitle), winTitle);
+    check('BrowserWindow 实际标题含新名 + 版本', /墨览 YiQi@MD-Editor-wb-DSv4-Flash 1\.1\.0/.test(winTitle), winTitle);
 
     // 2. 新建（new-file，即 Ctrl+N 链路）→ 2 个标签
     sendMenu('new-file');

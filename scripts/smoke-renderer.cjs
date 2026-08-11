@@ -1,6 +1,6 @@
 'use strict';
 /**
- * YiQi@MD-Editor-wb-DSv4-Flash - 渲染层多标签冒烟测试（真实 Electron 环境）
+ * 墨览 YiQi@MD-Editor-wb-DSv4-Flash - 渲染层多标签冒烟测试（真实 Electron 环境）
  *
  * 用真实 src/preload.js + src/renderer/index.html + 已构建 bundle.js 加载应用，
  * 捕获渲染进程 console 错误与崩溃，并执行多标签操作场景：
@@ -38,6 +38,8 @@ app.whenReady().then(async () => {
   ipcMain.handle('app:state-update', () => ({ ok: true }));
   ipcMain.handle('file:open-dialog', () => ({ ok: false, canceled: true }));
   ipcMain.handle('file:read', () => ({ ok: false, error: 'smoke: no read' }));
+  ipcMain.handle('app:get-info', () => ({ title: '墨览 YiQi@MD-Editor-wb-DSv4-Flash 1.1.0', version: '1.1.0' }));
+  ipcMain.handle('clipboard:write-text', () => ({ ok: true }));
   // 关闭脏标签确认对话框：返回 1 = 「不保存」
   ipcMain.handle('dialog:message', () => ({ response: 1 }));
 
@@ -111,8 +113,8 @@ app.whenReady().then(async () => {
     // 1. 初始状态
     let s = await getState();
     check('初始 1 个标签且为活动', s.tabs === 1 && s.active === 1, JSON.stringify(s));
-    check('窗口标题含新名 + 版本号', /YiQi@MD-Editor-wb-DSv4-Flash 1\.0\.0/.test(s.title), s.title);
-    check('#app-logo 为短名', s.logo === 'YiQi@MD-Editor-wb-DSv4-Flash', s.logo);
+    check('窗口标题含新名 + 版本号', /墨览 YiQi@MD-Editor-wb-DSv4-Flash 1\.1\.0/.test(s.title), s.title);
+    check('#app-logo 为短名', s.logo === '墨览 YiQi', s.logo);
 
     // 2. 菜单 new-file ×2 → 3 个标签
     win.webContents.send('menu-action', { action: 'new-file' });

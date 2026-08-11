@@ -47,6 +47,8 @@ app.whenReady().then(async () => {
   ipcMain.handle('file:get-last', () => ({ lastFilePath: null }));
   ipcMain.handle('file:recent', () => ({ recentFiles: [] }));
   ipcMain.handle('app:state-update', () => ({ ok: true }));
+  ipcMain.handle('app:get-info', () => ({ title: '墨览 YiQi@MD-Editor-wb-DSv4-Flash 1.1.0', version: '1.1.0' }));
+  ipcMain.handle('clipboard:write-text', () => ({ ok: true }));
   ipcMain.handle('file:open-dialog', () => openDialogResult || { ok: false, canceled: true });
   ipcMain.handle('file:read', (e, p) => {
     try {
@@ -149,7 +151,7 @@ app.whenReady().then(async () => {
          resolve(JSON.stringify({ tabs: bar.querySelectorAll('.tab').length, names, activeIdx, title: document.title }));
        })`).then(JSON.parse);
     check('点击「打开」按钮创建新标签（2 个）且活动', s.tabs === 2 && s.activeIdx === 1 && /open-test\.md/.test(s.names[1]), JSON.stringify(s));
-    check('打开后窗口标题为文件名 - 产品名', /^open-test\.md - YiQi@MD-Editor-wb-DSv4-Flash 1\.0\.0$/.test(s.title), s.title);
+    check('打开后窗口标题为文件名 - 产品名', /^open-test\.md - 墨览 YiQi@MD-Editor-wb-DSv4-Flash 1\.1\.0$/.test(s.title), s.title);
 
     // ============ C. 关闭窗口 confirm-close 闭环 ============
     console.log('\n--- C. 关闭窗口（标题栏 ✕ → confirm-close 闭环） ---');
