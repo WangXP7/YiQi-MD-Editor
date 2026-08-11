@@ -39,7 +39,7 @@ const api = window.yiqiMd || {
   showItem: async () => {},
   openExternal: (url) => window.open(url, '_blank', 'noopener'),
   resolveAsset: async ({ source }) => source,
-  getAppInfo: async () => ({ version: '1.1.2' }),
+  getAppInfo: async () => ({ version: '1.1.3' }),
   getPathForFile: (file) => file.path,
   copyText: async (text) => {
     const value = String(text);
@@ -547,7 +547,7 @@ function setDirty(value) {
 function updateDocumentLabels() {
   renderDocumentTabs();
   $('#window-title').textContent = `${state.dirty ? '● ' : ''}${state.name}`;
-  document.title = `${state.dirty ? '● ' : ''}${state.name} — YiQi@MD-Editor-GPT5.6SolxHigh-v1.1.2`;
+  document.title = `${state.dirty ? '● ' : ''}${state.name} — YiQi@MD-Editor-GPT5.6SolxHigh-v1.1.3`;
 }
 
 function renderDocumentTabs() {

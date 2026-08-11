@@ -1,0 +1,30 @@
+VSVersionInfo(
+  ffi=FixedFileInfo(
+    filevers=(1, 1, 3, 0),
+    prodvers=(1, 1, 3, 0),
+    mask=0x3f,
+    flags=0x0,
+    OS=0x40004,
+    fileType=0x1,
+    subtype=0x0,
+    date=(0, 0)
+  ),
+  kids=[
+    StringFileInfo([
+      StringTable(
+        u'080404B0',
+        [
+          StringStruct(u'CompanyName', u'YiQi'),
+          StringStruct(u'FileDescription', u'墨览 YiQi@MD Editor · Lite WebView2'),
+          StringStruct(u'FileVersion', u'1.1.3.0'),
+          StringStruct(u'InternalName', u'YiQiMDCompact'),
+          StringStruct(u'LegalCopyright', u'Copyright © 2026 YiQi'),
+          StringStruct(u'OriginalFilename', u'YiQi@MD-Editor-GPT5.6SolxHigh-v1.1.3-Lite-WebView2-x64.exe'),
+          StringStruct(u'ProductName', u'YiQi@MD-Editor-GPT5.6SolxHigh-v1.1.3-Lite-WebView2'),
+          StringStruct(u'ProductVersion', u'1.1.3.0')
+        ]
+      )
+    ]),
+    VarFileInfo([VarStruct(u'Translation', [2052, 1200])])
+  ]
+)

@@ -9,7 +9,7 @@ let pendingFile = null;
 let forceClose = false;
 let appIsQuitting = false;
 
-app.setName('YiQi@MD-Editor-GPT5.6SolxHigh-v1.1.2');
+app.setName('YiQi@MD-Editor-GPT5.6SolxHigh-v1.1.3');
 app.setAppUserModelId('com.yiqi.mdeditor.gpt56solxhigh');
 
 function isMarkdownFile(filePath) {

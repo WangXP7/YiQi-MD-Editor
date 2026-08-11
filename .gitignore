@@ -6,3 +6,7 @@ release/
 *.tmp
 .DS_Store
 Thumbs.db
+build/compact-smoke-*
+build/pyinstaller-lite/
+compact/*.spec
+__pycache__/
