@@ -12,7 +12,7 @@
 
 | 项 | 内容 |
 | --- | --- |
-| 项目根目录 | `PRIVACY-REDACTED/REDACTED-DIR/2026-08-05-21-33-11/md-editor/` |
+| 项目根目录 | `<仓库根目录>` |
 | 技术栈 | Electron 31 + Vite 5 + React 18 + TypeScript；渲染层 react-markdown 9 + CodeMirror 6 + KaTeX + Mermaid 11 |
 | 当前版本 | `1.0.0`（`package.json` 与 `src/shared/constants.ts` 一致） |
 | 当前品牌名 | `YiQi@MD-Editor-wb-Hy3`（第二轮已落地） |
